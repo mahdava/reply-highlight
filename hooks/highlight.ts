@@ -22,6 +22,14 @@ const MARKED = new RegExp(
     String.raw`\b[\w.-]+\.(?:${EXTENSIONS})(?::\d+(?:-\d+)?)?\b`,
     // a commit hash: 7 to 40 hex characters with at least one digit and one letter
     String.raw`\b(?=[0-9a-f]*\d)(?=[0-9a-f]*[a-f])[0-9a-f]{7,40}\b`,
+    // a call: a name straight before its brackets, with short arguments
+    String.raw`\b[A-Za-z_$][\w$.]*\([^()\n]{0,60}\)`,
+    // CONSTANT_CASE with at least one underscore
+    String.raw`\b[A-Z][A-Z0-9]*_[A-Z0-9_]+\b`,
+    // snake_case and dotted.names with an underscore or a capital inside
+    String.raw`\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b`,
+    // camelCase (two lowercase letters, then a capital: "iPhone" stays a word), dotted parts allowed
+    String.raw`\b[a-z][a-z0-9]+[A-Z][\w$]*(?:\.[A-Za-z_$][\w$]*)*\b`,
   ].join('|'),
   'g',
 )

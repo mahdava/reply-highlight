@@ -24,6 +24,28 @@ test('commit hashes are marked, plain hex words are not', async () => {
   expect(highlight('A deadbeef cafe.')).toBe('A deadbeef cafe.')
 })
 
+test('names from code are marked', async () => {
+  expect(highlight('Then restoreSelection(commits, lastSeen) picks it.')).toBe(
+    'Then `restoreSelection(commits, lastSeen)` picks it.',
+  )
+  expect(highlight('It reads lastSeen and sets OPENCLAW_COAUTHOR.')).toBe(
+    'It reads `lastSeen` and sets `OPENCLAW_COAUTHOR`.',
+  )
+  expect(highlight('The approval_timeout_seconds column.')).toBe('The `approval_timeout_seconds` column.')
+  expect(highlight('Read e.props.text first.')).toBe('Read e.props.text first.')
+})
+
+test('ordinary words and brackets in prose are not code', async () => {
+  const kept = [
+    'The proxy (see above) waits for you.',
+    'NotSoFast and Commit Walk are names, not code.',
+    'An iPhone-style toggle, e.g. this one.',
+  ]
+  for (const text of kept) {
+    expect(highlight(text)).toBe(text)
+  }
+})
+
 test('code, links, tables and headings stay exactly as written', async () => {
   const kept = [
     '```ts\nconst p = "hooks/register.ts"\n```',
