@@ -46,24 +46,6 @@ test('ordinary words and brackets in prose are not code', async () => {
   }
 })
 
-test("a list item's short label is bold", async () => {
-  expect(highlight('- Reading order: commits to follow.')).toBe('- **Reading order**: commits to follow.')
-  expect(highlight('  2. Size: proportional to the diff.')).toBe('  2. **Size**: proportional to the diff.')
-  expect(highlight('- Branch: feat/gris-652-pr-recap')).toBe('- **Branch**: `feat/gris-652-pr-recap`')
-})
-
-test('long openings and labels already styled are left alone', async () => {
-  const kept = [
-    '- This sentence runs on for far too many words before its colon: no.',
-    '- **Already bold**: yes.',
-    '- `code`: stays.',
-    'Not a list: no.',
-  ]
-  for (const text of kept) {
-    expect(highlight(text)).toBe(text)
-  }
-})
-
 test('code, links, tables and headings stay exactly as written', async () => {
   const kept = [
     '```ts\nconst p = "hooks/register.ts"\n```',

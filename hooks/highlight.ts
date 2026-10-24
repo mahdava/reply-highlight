@@ -48,21 +48,9 @@ export function highlight(text: string): string {
       if (inFence || TABLE_ROW.test(line) || HEADING.test(line)) {
         return line
       }
-      return markLine(boldLead(line))
+      return markLine(line)
     })
     .join('\n')
-}
-
-// A list item that opens with a short label and a colon ("- Reading order: ...").
-const LIST_LEAD = /^(\s*(?:[-*+]|\d+[.)])\s+)([^:`*[\n]{2,40}?):(\s|$)/
-
-/** Bolds a list item's short opening label, so a list can be scanned by its labels. */
-function boldLead(line: string): string {
-  const lead = LIST_LEAD.exec(line)
-  if (!lead || lead[2].trim().split(/\s+/).length > 6) {
-    return line
-  }
-  return `${lead[1]}**${lead[2]}**:${line.slice(lead[1].length + lead[2].length + 1)}`
 }
 
 /** Marks the prose of one line, stepping around its protected spans. */
