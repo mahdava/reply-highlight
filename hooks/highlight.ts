@@ -48,9 +48,21 @@ export function highlight(text: string): string {
       if (inFence || TABLE_ROW.test(line) || HEADING.test(line)) {
         return line
       }
-      return markLine(line)
+      return markLine(boldLead(line))
     })
     .join('\n')
+}
+
+// A list item that opens with a short label and a colon ("- Reading order: ...").
+const LIST_LEAD = /^(\s*(?:[-*+]|\d+[.)])\s+)([^:`*[\n]{2,40}?):(\s|$)/
+
+/** Bolds a list item's short opening label, so a list can be scanned by its labels. */
+function boldLead(line: string): string {
+  const lead = LIST_LEAD.exec(line)
+  if (!lead || lead[2].trim().split(/\s+/).length > 6) {
+    return line
+  }
+  return `${lead[1]}**${lead[2]}**:${line.slice(lead[1].length + lead[2].length + 1)}`
 }
 
 /** Marks the prose of one line, stepping around its protected spans. */
@@ -69,7 +81,8 @@ function markProse(prose: string): string {
 }
 
 // "and/or" and "TCP/IP" have a slash but are words, not paths: a path needs
-// a leading ~ . or /, a file extension, a line number or two slashes.
+// a leading ~ . or /, a file extension, a line number or two slashes, and a
+// branch name ("feat/gris-652-pr-recap") a lowercase prefix and a hyphenated name.
 function isWordWithSlash(word: string): boolean {
   if (!word.includes('/')) {
     return false
@@ -77,6 +90,7 @@ function isWordWithSlash(word: string): boolean {
   const hasAnchor = /^(~|\.{1,2}\/|\/)/.test(word)
   const hasExtension = /\.[A-Za-z]{1,5}(?::\d+(?:-\d+)?)?$/.test(word)
   const hasLine = /:\d+(?:-\d+)?$/.test(word)
+  const isBranch = /^[a-z]+\/[\w.]+-[\w.-]+$/.test(word)
   const slashes = word.split('/').length - 1
-  return !(hasAnchor || hasExtension || hasLine || slashes >= 2)
+  return !(hasAnchor || hasExtension || hasLine || isBranch || slashes >= 2)
 }
