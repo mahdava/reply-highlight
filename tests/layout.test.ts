@@ -13,7 +13,7 @@ test('headings and labelled items become their own blocks, in order', async () =
   expect(layout(reply)).toEqual([
     { kind: 'markdown', gap: false, text: 'Short version.' },
     { kind: 'heading', gap: true, text: 'Details' },
-    { kind: 'item', gap: true, marker: '- ', label: 'Other sessions', rest: 'not yet, see `a782c71`.' },
+    { kind: 'item', gap: true, marker: '- ', label: 'Other sessions', rest: 'not yet, see `a782c71`.', width: 16 },
     { kind: 'markdown', gap: false, text: '- Plain item.' },
   ])
 })
@@ -35,4 +35,14 @@ test('long openings, code labels and fenced code are left to markdown', async ()
   for (const text of kept) {
     expect(layout(text).every(b => b.kind === 'markdown')).toBe(true)
   }
+})
+
+test('labels next to each other share one column, as wide as the longest', async () => {
+  const blocks = layout(['- **Tests:** 11 pass.', '- **What I couldn\'t check:** the screen.', '', '- **Tidy-up:** done.'].join('\n'))
+  expect(blocks.map(b => b.kind === 'item' && b.width)).toEqual([23, 23, 23])
+})
+
+test('an indented line after an item is drawn under its text', async () => {
+  const [item] = layout(['- **Commit 5 of 5:** colour labels', '  Look at hooks/layout.ts first.'].join('\n'))
+  expect(item.kind === 'item' && item.rest).toBe('colour labels\nLook at `hooks/layout.ts` first.')
 })

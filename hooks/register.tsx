@@ -5,7 +5,8 @@ import { layout } from './layout'
 
 // Theme keys, so the colours follow the person's light or dark theme.
 const HEADING_COLOR = 'claude'
-const LABEL_COLOR = 'suggestion'
+// Purple, so labels stand apart from the blue of paths and code names.
+const LABEL_COLOR = 'merged'
 
 // Rewrites only what the transcript draws for a reply; the stored message
 // and what the model reads stay as they were.
@@ -34,11 +35,15 @@ export const register: Register = on => {
           if (b.kind === 'item') {
             return (
               <Box flexDirection="row" marginTop={marginTop}>
-                <Text>{b.marker}</Text>
-                <Text weight="bold" color={LABEL_COLOR}>
-                  {b.label}:{' '}
-                </Text>
-                <Box flexShrink={1}>
+                <Box flexShrink={0}>
+                  <Text>{b.marker}</Text>
+                </Box>
+                <Box width={b.width} flexShrink={0}>
+                  <Text weight="bold" color={LABEL_COLOR}>
+                    {b.label}:
+                  </Text>
+                </Box>
+                <Box flexGrow={1} flexShrink={1}>
                   <Markdown text={b.rest} />
                 </Box>
               </Box>
