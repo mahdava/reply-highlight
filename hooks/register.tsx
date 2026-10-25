@@ -27,9 +27,10 @@ const QUOTE_COLOR = 'merged'
 // Code blocks: the language in a muted yellow over the stripe's background.
 const CODE_LABEL_COLOR = '#8f7f45'
 
-// Your own prompts on a faint green-tinted background, so each exchange is
-// easy to find when scrolling back. (A Box cannot add a border, only restyle one.)
-const PROMPT_BACKGROUND = '#122016'
+// Your own prompts between two rows of five flowers, yellow and pink in
+// turn, behind a yellow chevron: easy to find when scrolling back.
+const PROMPT_FLOWER_COLORS = ['warning', '#f4a6cb']
+const PROMPT_CHEVRON = '❯'
 
 // Each kind of marked word as a small chip. A mod is not told the theme, so
 // these are raw colours picked for the dark theme.
@@ -212,16 +213,32 @@ export const register: Register = on => {
     )
   })
 
-  // Wraps the engine's own drawing of a prompt you typed; notifications and
-  // messages from other agents keep theirs.
-  on('ui.render', { component: 'UserMessage' }, async ($, e, next) => {
-    if (e.props.origin.kind !== 'composer') {
+  // Draws a prompt you typed; notifications, messages from other agents and
+  // the one-line short form keep the engine's drawing.
+  on('ui.render', { component: 'UserMessage' }, ($, e, next) => {
+    if (e.props.origin.kind !== 'composer' || !e.props.isExpanded) {
       return next(e)
     }
-    const { Box } = $.ui.resolve(e)
+    const { Box, Text } = $.ui.resolve(e)
+    const flowers = (
+      <Text>
+        {[0, 1, 2, 3, 4].map(i => (
+          <Text color={PROMPT_FLOWER_COLORS[i % PROMPT_FLOWER_COLORS.length]}>{(i > 0 ? ' ' : '') + BULLET}</Text>
+        ))}
+      </Text>
+    )
     return (
-      <Box backgroundColor={PROMPT_BACKGROUND}>
-        {await next(e)}
+      <Box flexDirection="column" marginTop={1}>
+        {flowers}
+        <Box flexDirection="row">
+          <Box flexShrink={0}>
+            <Text color={BULLET_COLOR}>{PROMPT_CHEVRON + ' '}</Text>
+          </Box>
+          <Box flexGrow={1} flexShrink={1}>
+            <Text>{e.props.text}</Text>
+          </Box>
+        </Box>
+        {flowers}
       </Box>
     )
   })
