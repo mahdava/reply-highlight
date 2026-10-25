@@ -6,9 +6,8 @@ import { layout } from './layout'
 
 // Theme keys, so the colours follow the person's light or dark theme.
 const HEADING_COLOR = 'claude'
-// Trying greens for labels: each labelled item takes the next one, so one
-// reply shows them side by side. Back to one colour once Lucia picks.
-const LABEL_COLORS = ['success', '#86e3a8', '#b5d99c', '#c3e88d']
+// The theme's green, picked from four trial greens for being easy to read.
+const LABEL_COLOR = 'success'
 
 // Bullets drawn as a small flower; numbered items keep their numbers. One
 // cell wide, unlike a flower emoji, so the text after it stays in line.
@@ -59,8 +58,6 @@ export const register: Register = on => {
       )
     }
 
-    let labelled = 0
-
     return (
       <Box flexDirection="column">
         {blocks.map((b, i) => {
@@ -84,7 +81,7 @@ export const register: Register = on => {
                 </Box>
                 {b.label !== '' && (
                   <Box width={b.width} flexShrink={0}>
-                    <Text weight="bold" color={LABEL_COLORS[labelled++ % LABEL_COLORS.length]}>
+                    <Text weight="bold" color={LABEL_COLOR}>
                       {b.label}:
                     </Text>
                   </Box>
