@@ -4,7 +4,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&display=swap">
 <style>
-/* Layout: a terminal you can click into on the left, the theme's controls on the right; stacked on a phone. */
+/* Layout: one step per part of the look, each with its own preview and settings; the whole session previewed on the side. */
 :root {
   --bg: #f6f5f1;
   --panel: #ffffff;
@@ -41,10 +41,11 @@ header { display: grid; gap: 6px; }
 h1 { font: 700 clamp(26px, 4vw, 36px)/1.1 var(--display); margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
 h1 .mark { color: var(--accent); }
 .lede { margin: 0; color: var(--muted); max-width: 70ch; }
-.layout { display: grid; gap: 20px; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); align-items: start; }
+.layout { display: grid; gap: 20px; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: start; }
 @media (max-width: 900px) { .layout { grid-template-columns: minmax(0, 1fr); } }
 .stage { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); display: grid; gap: 12px; min-width: 0; }
-@media (max-width: 900px) { .stage { position: static; } }
+.stage .term { max-height: calc(100vh - 290px); min-height: 280px; overflow: auto; }
+@media (max-width: 900px) { .stage { position: static; order: -1; } .stage .term { max-height: 60vh; } }
 
 .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .bar .grow { flex: 1 1 auto; }
@@ -70,9 +71,9 @@ h1 .mark { color: var(--accent); }
 .term .tbl td[style] { background: linear-gradient(var(--stripe), var(--stripe)) center / 100% 1.45em no-repeat; }
 .term .dim { color: var(--t-dim); }
 .term .chip { border-radius: 0; }
-.term [data-part] { cursor: pointer; border-radius: 3px; outline: 1px dashed transparent; outline-offset: 1px; transition: outline-color 120ms; }
-.term [data-part]:hover { outline-color: color-mix(in srgb, var(--t-fg) 35%, transparent); }
-@media (prefers-reduced-motion: reduce) { .term [data-part] { transition: none; } }
+.term [data-path] { cursor: pointer; }
+/* The part a setting changes, while that setting is pointed at or focused. */
+.term .spot { outline: 2px solid #4cc2ff; outline-offset: 1px; }
 .hint { font-size: 13px; color: var(--muted); margin: 0; }
 
 .out { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 8px; }
@@ -82,23 +83,24 @@ h1 .mark { color: var(--accent); }
 .btn:focus-visible, .seg button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .sug:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .status { font-size: 13px; color: var(--muted); min-height: 1.4em; }
 
-.controls { display: grid; gap: 12px; min-width: 0; }
-details.group { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
-details.group > summary { list-style: none; cursor: pointer; padding: 12px 14px; display: flex; align-items: center; gap: 10px; font: 600 15px var(--body); }
-details.group > summary::-webkit-details-marker { display: none; }
-details.group > summary .swatches { margin-left: auto; display: inline-flex; gap: 3px; }
-details.group > summary .swatches i { width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--line); display: inline-block; }
-details.group > summary::after { content: "▸"; color: var(--muted); transition: transform 120ms; }
-details.group[open] > summary::after { transform: rotate(90deg); }
-details.group.flash { box-shadow: 0 0 0 2px var(--accent); }
-.fields { display: grid; gap: 12px; padding: 0 14px 14px; }
-.field { display: grid; gap: 4px; }
+.steps { display: grid; gap: 16px; min-width: 0; }
+.step { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 12px; scroll-margin-top: 12px; }
+.step.flash { box-shadow: 0 0 0 2px var(--accent); }
+.step h2 { font: 700 18px/1.2 var(--display); margin: 0; display: flex; gap: 10px; align-items: baseline; }
+.step h2 .n { font: 600 13px var(--mono); color: var(--accent); }
+.step p { margin: 0; color: var(--muted); font-size: 14px; }
+.step .term { padding: 10px 14px 12px; }
+.fields { display: grid; gap: 14px 18px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+.field { display: grid; gap: 4px; align-content: start; border-radius: 8px; padding: 6px; margin: -6px; }
+.field.wide { grid-column: 1 / -1; }
+.field:hover, .field:focus-within { background: var(--accent-soft); }
 .field > label, .field > .flabel { font-size: 13px; font-weight: 500; }
 .color-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .color-row input[type=color] { width: 38px; height: 30px; padding: 0; border: 1px solid var(--line); border-radius: 6px; background: none; cursor: pointer; }
+.color-row input[type=text] { width: 11ch; font: 13px var(--mono); }
+.follows { font-size: 12px; color: var(--muted); }
+.undo { font: 500 12px var(--body); color: var(--accent); background: none; border: 0; padding: 2px 4px; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
 select, input[type=text], textarea { font: 13px var(--body); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
-select { max-width: 100%; }
-.color-row code { font: 12px var(--mono); color: var(--muted); }
 .glyph-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .glyph-row input { width: 3.2em; text-align: center; font: 16px var(--mono); }
 .sug { font: 15px var(--mono); width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--fg); cursor: pointer; padding: 0; }
@@ -108,8 +110,11 @@ select { max-width: 100%; }
 .range-row input { flex: 1 1 auto; accent-color: var(--accent); }
 .range-row output { font: 13px var(--mono); width: 2ch; text-align: right; }
 .symbols { display: grid; gap: 8px; }
-.symbol { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 8px; border: 1px dashed var(--line); border-radius: 8px; }
-.symbol .remove { margin-left: auto; }
+.symbol { display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr) auto; padding: 10px; border: 1px dashed var(--line); border-radius: 8px; }
+.symbol .remove { align-self: start; }
+.import { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
+.import > summary { cursor: pointer; padding: 12px 16px; font: 600 15px var(--body); }
+.import .body { display: grid; gap: 8px; padding: 0 16px 16px; }
 .import textarea { width: 100%; min-height: 4.5em; font: 12px var(--mono); resize: vertical; }
 footer { color: var(--muted); font-size: 13px; }
 </style>
@@ -117,11 +122,13 @@ footer { color: var(--muted); font-size: 13px; }
 <div class="wrap">
   <header>
     <h1><span class="mark">✿</span> Reply Highlight Themes</h1>
-    <p class="lede">Design how Claude's replies and your prompts look in the terminal with the Reply Highlight mod. Click any part of the preview to jump to its colours, then copy the command and paste it into Claude Code.</p>
+    <p class="lede">Design how Claude's replies and your prompts look in the terminal with the Reply Highlight mod. Each part has its own preview: point at a setting to see what it changes, or click a part of a preview to find its setting. Then copy the command and paste it into Claude Code.</p>
   </header>
 
   <div class="layout">
-    <section class="stage" aria-label="Preview and result">
+    <section class="steps" id="steps" aria-label="The parts of the look"></section>
+
+    <section class="stage" aria-label="Whole session and result">
       <div class="bar">
         <span class="label-sm">Start from</span>
         <div class="seg" id="presets" role="group" aria-label="Presets"></div>
@@ -132,8 +139,7 @@ footer { color: var(--muted); font-size: 13px; }
           <button type="button" data-mode="light" aria-pressed="false">Light</button>
         </div>
       </div>
-      <div class="term" id="term" aria-label="Preview of a Claude Code session with this theme"></div>
-      <p class="hint">Named colours such as “Claude orange” follow your Claude Code theme; the preview shows them as the dark or light theme draws them.</p>
+      <div class="term" id="term" tabindex="0" aria-label="Preview of a whole Claude Code session with this theme"></div>
       <div class="out">
         <div class="bar"><span class="label-sm">Paste into Claude Code</span><span class="grow"></span>
           <button type="button" class="btn" id="reset">Back to preset</button>
@@ -142,19 +148,16 @@ footer { color: var(--muted); font-size: 13px; }
         <pre id="cmd" tabindex="0" aria-label="Command to paste"></pre>
         <div class="status" id="status" role="status"></div>
       </div>
+      <details class="import">
+        <summary>Load a theme you already have</summary>
+        <div class="body">
+          <label for="import-text" class="flabel">Paste the output of <code>/reply-highlight theme current</code>, or a theme command</label>
+          <textarea id="import-text" spellcheck="false" placeholder='{"heading":"#ff8800"}'></textarea>
+          <div class="bar"><button type="button" class="btn" id="import">Load</button><span class="status" id="import-status" role="status"></span></div>
+        </div>
+      </details>
     </section>
-
-    <section class="controls" id="controls" aria-label="Theme controls"></section>
   </div>
-
-  <details class="group import">
-    <summary>Load a theme you already have</summary>
-    <div class="fields">
-      <label for="import-text" class="flabel">Paste a theme, or the output of <code>/reply-highlight</code></label>
-      <textarea id="import-text" spellcheck="false" placeholder='{"heading":"#ff8800"}'></textarea>
-      <div class="bar"><button type="button" class="btn" id="import">Load</button><span class="status" id="import-status" role="status"></span></div>
-    </div>
-  </details>
 
   <footer>Needs the Reply Highlight mod for Claude Code. The command saves the theme in <code>~/.claude/reply-highlight/theme.json</code>; <code>/reply-highlight reset</code> goes back to the built-in look.</footer>
 </div>
@@ -193,13 +196,9 @@ const PALETTES = {
   dark: { text: '#ffffff', inactive: '#999999', subtle: '#505050', suggestion: '#b1b9f9', remember: '#b1b9f9', success: '#4eba65', error: '#ff6b80', warning: '#ffc107', merged: '#af87ff', claude: '#d77757', permission: '#b1b9f9', planMode: '#48968c', autoAccept: '#af87ff', ide: '#4782c8', diffAdded: '#225c2b', diffRemoved: '#7a2936', bg: '#0c0c0c' },
   light: { text: '#000000', inactive: '#666666', subtle: '#afafaf', suggestion: '#5769f7', remember: '#5769f7', success: '#2c7a39', error: '#ab2b3f', warning: '#966c1e', merged: '#8700ff', claude: '#d77757', permission: '#5769f7', planMode: '#006666', autoAccept: '#8700ff', ide: '#4782c8', diffAdded: '#69db7c', diffRemoved: '#ffa8b4', bg: '#ffffff' },
 };
-const KEY_NAMES = {
-  claude: 'Claude orange', success: 'Green', warning: 'Yellow (auto mode)', merged: 'Purple', suggestion: 'Light blue',
-  error: 'Red', planMode: 'Teal (plan mode)', ide: 'Blue', text: 'Text', inactive: 'Grey', subtle: 'Dark grey',
-  permission: 'Periwinkle', remember: 'Periwinkle (remember)', autoAccept: 'Purple (accept edits)',
-  diffAdded: 'Diff green', diffRemoved: 'Diff red',
-};
-const THEME_KEYS = Object.keys(KEY_NAMES);
+// Colours that follow the person's Claude Code theme, as hooks/theme.ts names them.
+const THEME_KEYS = ['text', 'inactive', 'subtle', 'suggestion', 'remember', 'success', 'error', 'warning', 'merged', 'claude',
+  'permission', 'planMode', 'autoAccept', 'ide', 'diffAdded', 'diffRemoved'];
 
 const PRESETS = {
   'Built-in': { mode: 'dark', theme: {} },
@@ -232,27 +231,38 @@ const PRESETS = {
 
 const GLYPHS = ['●', '◌', '○', '✕', '✿', '❀', '❁', '✾', '❦', '❧', '♣', '⚘', '•', '◆', '◇', '▸', '›', '❯', '★', '·', '▎', '│', '┃'];
 
-// The controls, in the order the preview shows the parts.
+// The steps, in the order the whole session shows the parts. `wide` fields take a full row.
 const GROUPS = [
-  { id: 'prompt', title: 'Your prompts', fields: [
-    { path: 'prompt.chevron.glyph', label: 'Prompt symbol', type: 'glyph' },
-    { path: 'prompt.chevron.color', label: 'Prompt symbol colour', type: 'color' },
-    { path: 'prompt.row', label: 'Rows above and below', type: 'row' },
+  { id: 'prompt', title: 'Your prompts', about: 'What you type, between two rows of symbols.', fields: [
+    { path: 'prompt.chevron.glyph', label: 'Symbol before your prompt', type: 'glyph', wide: true },
+    { path: 'prompt.chevron.color', label: 'Its colour', type: 'color' },
+    { path: 'prompt.row', label: 'Symbols in the rows above and below, repeated across', type: 'row', wide: true },
     { path: 'prompt.spaceAbove', label: 'Empty lines above', type: 'space' },
-    { path: 'prompt.spaceInside', label: 'Empty lines inside the rows', type: 'space' },
+    { path: 'prompt.spaceInside', label: 'Empty lines between the rows and your text', type: 'space' },
     { path: 'prompt.spaceBelow', label: 'Empty lines below', type: 'space' },
   ] },
-  { id: 'headings', title: 'Headings', fields: [
+  { id: 'tools', title: 'Tool rows', about: 'The lines that show what Claude read, ran or changed.', fields: [
+    { path: 'tools.summary.glyph', label: 'Symbol of a collapsed group', type: 'glyph', wide: true },
+    { path: 'tools.summary.color', label: 'Collapsed group (“Read 2 files…”)', type: 'color' },
+    { path: 'tools.name', label: 'Tool name (Read, Bash)', type: 'color' },
+    { path: 'tools.done.glyph', label: 'Symbol of a finished call', type: 'glyph', wide: true },
+    { path: 'tools.done.color', label: 'Finished call', type: 'color' },
+    { path: 'tools.failed.glyph', label: 'Symbol of a failed call', type: 'glyph', wide: true },
+    { path: 'tools.failed.color', label: 'Failed call', type: 'color' },
+    { path: 'tools.running.glyph', label: 'Symbol of a running call', type: 'glyph', wide: true },
+    { path: 'tools.running.color', label: 'Running call', type: 'color' },
+  ] },
+  { id: 'headings', title: 'Headings', about: 'Titles inside a reply.', fields: [
     { path: 'heading', label: '# and ## headings', type: 'color' },
     { path: 'subheading', label: '### and smaller', type: 'color' },
   ] },
-  { id: 'lists', title: 'Lists', fields: [
-    { path: 'label', label: 'Labels', type: 'color' },
-    { path: 'bullet.glyph', label: 'Bullet symbol', type: 'glyph' },
+  { id: 'lists', title: 'Lists', about: 'Bullets, numbers, and the labels before a colon.', fields: [
+    { path: 'bullet.glyph', label: 'Bullet symbol', type: 'glyph', wide: true },
     { path: 'bullet.color', label: 'Bullet colour', type: 'color' },
     { path: 'number', label: 'Numbers', type: 'color' },
+    { path: 'label', label: 'Labels', type: 'color' },
   ] },
-  { id: 'chips', title: 'Words in colour', fields: [
+  { id: 'chips', title: 'Words in colour', about: 'Links, files, commit hashes and names from code, each on a background of its own.', fields: [
     { path: 'chips.link.color', label: 'Links: text', type: 'color' },
     { path: 'chips.link.background', label: 'Links: background', type: 'color' },
     { path: 'chips.file.color', label: 'Files: text', type: 'color' },
@@ -262,33 +272,22 @@ const GROUPS = [
     { path: 'chips.code.color', label: 'Code names: text', type: 'color' },
     { path: 'chips.code.background', label: 'Code names: background', type: 'color' },
   ] },
-  { id: 'table', title: 'Tables', fields: [
+  { id: 'table', title: 'Tables', about: 'Lines between every cell and row, a header, and a stripe on every other row.', fields: [
     { path: 'table.line', label: 'Lines', type: 'color' },
     { path: 'table.header', label: 'Header', type: 'color' },
-    { path: 'table.stripe', label: 'Stripe on every other row', type: 'color' },
+    { path: 'table.stripe', label: 'Stripe', type: 'color' },
   ] },
-  { id: 'quote', title: 'Quotes', fields: [
-    { path: 'quote.glyph', label: 'Bar symbol', type: 'glyph' },
+  { id: 'quote', title: 'Quotes', about: 'A bar in front of each quoted line.', fields: [
+    { path: 'quote.glyph', label: 'Bar symbol', type: 'glyph', wide: true },
     { path: 'quote.color', label: 'Bar colour', type: 'color' },
   ] },
-  { id: 'code', title: 'Code blocks', fields: [
+  { id: 'code', title: 'Code blocks', about: 'A line naming the language, and a background. The code keeps the terminal’s own colours.', fields: [
     { path: 'code.line', label: 'Line above', type: 'color' },
     { path: 'code.label', label: 'Language name', type: 'color' },
     { path: 'code.background', label: 'Background', type: 'color' },
   ] },
-  { id: 'tools', title: 'Tool rows', fields: [
-    { path: 'tools.summary.glyph', label: 'Collapsed group symbol', type: 'glyph' },
-    { path: 'tools.summary.color', label: 'Collapsed group (“Ran 2 shell commands”)', type: 'color' },
-    { path: 'tools.done.glyph', label: 'Finished call symbol', type: 'glyph' },
-    { path: 'tools.done.color', label: 'Finished call colour', type: 'color' },
-    { path: 'tools.running.glyph', label: 'Running call symbol', type: 'glyph' },
-    { path: 'tools.running.color', label: 'Running call colour', type: 'color' },
-    { path: 'tools.failed.glyph', label: 'Failed call symbol', type: 'glyph' },
-    { path: 'tools.failed.color', label: 'Failed call colour', type: 'color' },
-    { path: 'tools.name', label: 'Tool name', type: 'color' },
-  ] },
-  { id: 'turn', title: 'End of a turn', fields: [
-    { path: 'turn.glyph', label: 'Symbol', type: 'glyph' },
+  { id: 'turn', title: 'End of a turn', about: 'The line that says how long Claude worked.', fields: [
+    { path: 'turn.glyph', label: 'Symbol', type: 'glyph', wide: true },
     { path: 'turn.color', label: 'Colour', type: 'color' },
   ] },
 ];
@@ -347,39 +346,44 @@ const resolve = c => (THEME_KEYS.includes(c) ? PALETTES[state.mode][c] : c);
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 // ── The preview ──────────────────────────────────────────────────────────
-// A span of text in the terminal's colours; `part` makes it a link to its controls.
+// Every drawn piece carries `data-path`, the setting it comes from: pointing at a
+// setting outlines its pieces, and clicking a piece finds its setting.
+const spotOf = path => path.replace(/\.(glyph|color|background)$/, '');
+
+// A span of text in the terminal's colours.
 function sp(text, o = {}) {
   const style = [];
   if (o.fg) style.push(`color:${resolve(o.fg)}`);
   if (o.bg) style.push(`background:${resolve(o.bg)}`);
   if (o.bold) style.push('font-weight:700');
-  if (o.italic) style.push('font-style:italic');
   if (o.underline) style.push('text-decoration:underline');
   const cls = o.dim ? ' class="dim"' : '';
-  const part = o.part ? ` data-part="${o.part}"` : '';
-  return `<span${cls}${part}${style.length ? ` style="${style.join(';')}"` : ''}>${esc(text)}</span>`;
+  const path = o.path ? ` data-path="${o.path}"` : '';
+  return `<span${cls}${path}${style.length ? ` style="${style.join(';')}"` : ''}>${esc(text)}</span>`;
 }
-// Sample prose: {f:file} {h:hash} {c:code} {b:bold} — the kinds the mod finds by itself.
+// Sample prose: {l:link} {f:file} {h:hash} {c:code} {b:bold}, the kinds the mod finds by itself.
 function prose(text) {
   const t = state.theme;
   return text.split(/(\{[lfhcb]:[^}]+\})/).map(piece => {
     const m = /^\{([lfhcb]):([^}]+)\}$/.exec(piece);
     if (!m) return esc(piece);
     if (m[1] === 'b') return sp(m[2], { bold: true });
-    const chip = t.chips[{ l: 'link', f: 'file', h: 'hash', c: 'code' }[m[1]]];
-    return sp(m[2], { fg: chip.color, bg: chip.background, underline: m[1] === 'l', part: 'chips' });
+    const kind = { l: 'link', f: 'file', h: 'hash', c: 'code' }[m[1]];
+    const chip = t.chips[kind];
+    return sp(m[2], { fg: chip.color, bg: chip.background, underline: kind === 'link', path: `chips.${kind}` });
   }).join('');
 }
 const plainLen = text => text.replace(/\{[lfhcb]:([^}]+)\}/g, '$1').length;
-const blank = (n = 1) => '<div class="blank"></div>'.repeat(n);
+const blank = (n = 1, path) => `<div class="blank"${path ? ` data-path="${path}"` : ''}></div>`.repeat(n);
+const line = html => `<div class="ln">${html}</div>`;
 
 function promptFrame(text) {
   const p = state.theme.prompt;
-  const row = Array.from({ length: 240 }, (_, i) => { const m = p.row[i % p.row.length]; return sp(m.glyph + ' ', { fg: m.color }); }).join('');
-  const rowLine = `<div class="row" data-part="prompt">${row}</div>`;
-  return blank(p.spaceAbove) + rowLine + blank(p.spaceInside) +
-    `<div class="item" data-part="prompt"><span>${sp(p.chevron.glyph + ' ', { fg: p.chevron.color })}</span><span></span><span>${esc(text)}</span></div>` +
-    blank(p.spaceInside) + rowLine + blank(p.spaceBelow);
+  const row = Array.from({ length: 240 }, (_, i) => { const n = i % p.row.length; return sp(p.row[n].glyph + ' ', { fg: p.row[n].color, path: `prompt.row.${n}` }); }).join('');
+  const rowLine = `<div class="row">${row}</div>`;
+  return blank(p.spaceAbove, 'prompt.spaceAbove') + rowLine + blank(p.spaceInside, 'prompt.spaceInside') +
+    `<div class="item"><span>${sp(p.chevron.glyph + ' ', { fg: p.chevron.color, path: 'prompt.chevron' })}</span><span></span><span>${esc(text)}</span></div>` +
+    blank(p.spaceInside, 'prompt.spaceInside') + rowLine + blank(p.spaceBelow, 'prompt.spaceBelow');
 }
 
 function items(list) {
@@ -388,9 +392,9 @@ function items(list) {
   const width = Math.max(0, ...labelled.map(i => i.label.length + 2).filter(w => w <= 26));
   return list.map((it, n) => {
     const marker = it.number
-      ? sp(`${it.number}. `, { fg: t.number, part: 'lists' })
-      : sp(t.bullet.glyph, { fg: t.bullet.color, part: 'lists' }) + ' ';
-    const label = it.label ? sp((it.label + ':').padEnd(Math.max(width, it.label.length + 2)), { fg: t.label, bold: true, part: 'lists' }) : '';
+      ? sp(`${it.number}. `, { fg: t.number, path: 'number' })
+      : sp(t.bullet.glyph, { fg: t.bullet.color, path: 'bullet' }) + ' ';
+    const label = it.label ? sp((it.label + ':').padEnd(Math.max(width, it.label.length + 2)), { fg: t.label, bold: true, path: 'label' }) : '';
     return (n > 0 ? blank() : '') + `<div class="item"><span>${marker}</span><span>${label}</span><span>${prose(it.text)}</span></div>`;
   }).join('');
 }
@@ -401,9 +405,9 @@ function table(head, rows) {
   const t = state.theme;
   const widths = head.map((h, i) => Math.max(h.length, ...rows.map(r => plainLen(r[i]))));
   const cols = widths.map(w => `<col style="width:calc(${w + 2}ch + 1px)">`).join('');
-  const cells = (texts, draw, bg) => '<tr>' + texts.map(x => `<td${bg ? ` style="--stripe:${resolve(bg)}"` : ''}>${draw(x)}</td>`).join('') + '</tr>';
-  return `<table class="tbl" data-part="table" style="--t-line:${resolve(t.table.line)}"><colgroup>${cols}</colgroup>` +
-    cells(head, h => sp(h, { fg: t.table.header, bold: true })) +
+  const cells = (texts, draw, bg) => '<tr>' + texts.map(x => `<td${bg ? ` style="--stripe:${resolve(bg)}" data-path="table.stripe"` : ''}>${draw(x)}</td>`).join('') + '</tr>';
+  return `<table class="tbl" data-path="table.line" style="--t-line:${resolve(t.table.line)}"><colgroup>${cols}</colgroup>` +
+    cells(head, h => sp(h, { fg: t.table.header, bold: true, path: 'table.header' })) +
     rows.map((r, n) => cells(r, prose, n % 2 === 0 ? t.table.stripe : null)).join('') + '</table>';
 }
 
@@ -417,34 +421,49 @@ function codeBlock(lang, lines) {
     .replace(/(\/\/.*)$/, `<span style="color:${com}">$1</span>`)
     .replace(/('[^']*')/g, `<span style="color:${str}">$1</span>`)
     .replace(/\b(const|let|return|export|function)\b/g, `<span style="color:${kw}">$1</span>`);
-  return `<div data-part="code"><div class="ln">${sp('── ', { fg: t.code.line })}${sp(lang, { fg: t.code.label })}${sp(' ' + '─'.repeat(20), { fg: t.code.line })}</div>` +
-    lines.map(l => `<div class="ln" style="background:${bg}">${colour(l) || ' '}</div>`).join('') + '</div>';
+  return line(sp('── ', { fg: t.code.line, path: 'code.line' }) + sp(lang, { fg: t.code.label, path: 'code.label' }) + sp(' ' + '─'.repeat(20), { fg: t.code.line, path: 'code.line' })) +
+    lines.map(l => `<div class="ln" style="background:${bg}" data-path="code.background">${colour(l) || ' '}</div>`).join('');
 }
+
+const quote = text => line(sp(state.theme.quote.glyph + ' ', { fg: state.theme.quote.color, path: 'quote' }) + prose(text));
+const heading = (text, level) => line(sp(text, { fg: level <= 2 ? state.theme.heading : state.theme.subheading, bold: true, path: level <= 2 ? 'heading' : 'subheading' }));
+const turnLine = () => line(sp(state.theme.turn.glyph, { fg: state.theme.turn.color, path: 'turn' }) + '<span class="dim"> Cooked for 1m 42s</span>');
 
 function toolRows() {
   const t = state.theme.tools;
   const chip = state.theme.chips.file;
-  const header = (mark, name, subject, isPath) => `<div class="ln" data-part="tools">${sp(mark.glyph + ' ', { fg: mark.color })}${sp(name, { fg: t.name, bold: true })} ` +
-    (isPath ? sp(subject, { fg: chip.color, bg: chip.background }) : sp(subject, { dim: true })) + '</div>';
-  return `<div class="ln" data-part="tools">${sp(t.summary.glyph + ' ', { fg: t.summary.color })}${sp('Read 2 files, ran 1 shell command', { fg: t.summary.color })}</div>` +
-    header(t.done, 'Read', 'hooks/register.tsx', true) +
-    `<div class="ln dim">  ⎿  Read 412 lines</div>` +
-    header(t.failed, 'Bash', 'Run the plugin tests', false) +
-    `<div class="ln dim">  ⎿  Error: 1 test failed</div>` +
-    header(t.running, 'Bash', 'Validate the plugin', false);
+  const header = (key, name, subject, isPath) => line(sp(t[key].glyph + ' ', { fg: t[key].color, path: `tools.${key}` }) + sp(name, { fg: t.name, bold: true, path: 'tools.name' }) + ' ' +
+    (isPath ? sp(subject, { fg: chip.color, bg: chip.background, path: 'chips.file' }) : sp(subject, { dim: true })));
+  return line(sp(t.summary.glyph + ' ', { fg: t.summary.color, path: 'tools.summary' }) + sp('Read 2 files, ran 1 shell command', { fg: t.summary.color, path: 'tools.summary' })) +
+    header('done', 'Read', 'hooks/register.tsx', true) +
+    '<div class="ln dim">  ⎿  Read 412 lines</div>' +
+    header('failed', 'Bash', 'Run the plugin tests', false) +
+    '<div class="ln dim">  ⎿  Error: 1 test failed</div>' +
+    header('running', 'Bash', 'Validate the plugin', false);
 }
 
-function render() {
-  const t = state.theme;
-  const term = document.getElementById('term');
-  term.style.setProperty('--t-bg', PALETTES[state.mode].bg);
-  term.style.setProperty('--t-fg', PALETTES[state.mode].text);
-  term.style.setProperty('--t-dim', PALETTES[state.mode].inactive);
-  const heading = (text, level) => `<div class="ln">${sp(text, { fg: level <= 2 ? t.heading : t.subheading, bold: true, part: 'headings' })}</div>`;
-  term.innerHTML =
-    promptFrame('can you walk me through the new table drawing?') +
+// Each step's own preview: its part, with only as much around it as it needs to read.
+const PARTS = {
+  prompt: () => line('<span class="dim">…the end of the reply before.</span>') + promptFrame('can you walk me through the new table drawing?') + line('Sure. The table is drawn in three steps.'),
+  tools: toolRows,
+  headings: () => heading('Details', 2) + blank() + line('A # or ## heading.') + blank() + heading('Reading order', 3) + blank() + line('A ### heading, a little softer.'),
+  lists: () => items([
+    { label: 'Lines', text: 'a dark yellow that barely stands out.' },
+    { label: 'Where to look', text: 'the table drawing.' },
+  ]) + blank() + items([{ number: 1, text: 'Draw the lines' }, { number: 2, text: 'Add the header' }]) + blank() +
+    items([{ text: 'Links stay clickable.' }, { text: 'The stored reply never changes.' }]),
+  chips: () => line(prose('Open {l:https://claude.ai/artifact/E6XtQwk7cZfjXLgEmjyGFf}. The change is in {f:hooks/register.tsx}, commit {h:43d8964}, inside {c:table()}.')),
+  table: () => table(['Kind', 'Example', 'Colour'], [['File', '{f:hooks/layout.ts}', 'teal'], ['Commit', '{h:0569c37}', 'yellow'], ['Code name', '{c:layout()}', 'pink'], ['Status', 'done', 'plain']]),
+  quote: () => quote('Tables were the last part of a reply') + quote('in one flat colour.'),
+  code: () => codeBlock('ts', ['// every other body row', 'const stripe = n % 2 === 0 ? theme.table.stripe : undefined']),
+  turn: turnLine,
+};
+
+// The whole session, in the order it happens.
+function session() {
+  return promptFrame('can you walk me through the new table drawing?') +
     toolRows() + blank() +
-    `<div class="ln">${prose('Tables are now drawn by the mod. The change is in {f:hooks/register.tsx}, commit {h:43d8964}, inside {c:table()}. Designer: {l:https://claude.ai/artifact/E6XtQwk7cZfjXLgEmjyGFf}')}</div>` +
+    line(prose('Tables are now drawn by the mod. The change is in {f:hooks/register.tsx}, commit {h:43d8964}, inside {c:table()}. Designer: {l:https://claude.ai/artifact/E6XtQwk7cZfjXLgEmjyGFf}')) +
     blank() + heading('Details', 2) + blank() +
     items([
       { label: 'Lines', text: 'a dark yellow that barely stands out from the black.' },
@@ -456,18 +475,28 @@ function render() {
       { number: 1, text: '{h:e60d4af} draws tables with lines and a header' },
       { number: 2, text: '{h:83b86dd} adds a line between every row' },
     ]) +
-    blank() +
-    items([{ text: 'Links in a table stay clickable.' }, { text: 'The stored reply never changes.' }]) +
-    blank() +
-    table(['Kind', 'Example', 'Colour'], [['File', '{f:hooks/layout.ts}', 'teal'], ['Commit', '{h:0569c37}', 'yellow'], ['Code name', '{c:layout()}', 'pink'], ['Status', 'done', 'plain']]) +
-    blank() +
-    `<div class="ln" data-part="quote">${sp(t.quote.glyph + ' ', { fg: t.quote.color })}Tables were the last part of a reply in one flat colour.</div>` +
-    blank() +
-    codeBlock('ts', ["// every other body row", "const stripe = n % 2 === 0 ? theme.table.stripe : undefined"]) +
-    blank() +
-    `<div class="ln" data-part="turn">${sp(t.turn.glyph, { fg: t.turn.color })}<span class="dim"> Cooked for 1m 42s</span></div>`;
+    blank() + items([{ text: 'Links in a table stay clickable.' }, { text: 'The stored reply never changes.' }]) +
+    blank() + PARTS.table() + blank() +
+    quote('Tables were the last part of a reply in one flat colour.') + blank() +
+    PARTS.code() + blank() + turnLine();
+}
+
+function paint(term, html) {
+  term.style.setProperty('--t-bg', PALETTES[state.mode].bg);
+  term.style.setProperty('--t-fg', PALETTES[state.mode].text);
+  term.style.setProperty('--t-dim', PALETTES[state.mode].inactive);
+  term.innerHTML = html;
+}
+
+let spotted = null;
+function render() {
+  paint(document.getElementById('term'), session());
+  for (const g of GROUPS) {
+    const term = document.querySelector(`#step-${g.id} .term`);
+    if (term) paint(term, PARTS[g.id]());
+  }
+  if (spotted) spot(spotted);
   renderCommand();
-  renderSwatches();
   remember();
 }
 
@@ -476,37 +505,60 @@ function renderCommand() {
   document.getElementById('cmd').textContent = diff ? '/reply-highlight theme ' + JSON.stringify(diff) : '/reply-highlight reset';
 }
 
-// ── The controls ─────────────────────────────────────────────────────────
-const controls = document.getElementById('controls');
+// Outlines the pieces one setting draws, in every preview.
+function spot(key) {
+  spotted = key;
+  document.querySelectorAll('.term .spot').forEach(el => el.classList.remove('spot'));
+  if (key) document.querySelectorAll(`.term [data-path="${key}"]`).forEach(el => el.classList.add('spot'));
+}
+
+// ── The settings ─────────────────────────────────────────────────────────
+const steps = document.getElementById('steps');
 let uid = 0;
 
-function colorField(f) {
-  const id = 'f' + (++uid);
-  const value = get(state.theme, f.path);
-  const isKey = THEME_KEYS.includes(value);
-  const options = ['<option value="">Own colour</option>'].concat(THEME_KEYS.map(k => `<option value="${k}"${value === k ? ' selected' : ''}>${KEY_NAMES[k]}</option>`));
+function fieldBox(f, spotKey) {
   const el = document.createElement('div');
-  el.className = 'field';
-  el.innerHTML = `<label for="${id}">${f.label}</label><div class="color-row">
-    <input type="color" id="${id}" value="${resolve(value)}" aria-label="${f.label}: pick a colour">
-    <select id="${id}-k" aria-label="${f.label}: theme colour">${options.join('')}</select>
-    <code>${isKey ? '' : value}</code></div>`;
-  const picker = el.querySelector('input'), select = el.querySelector('select'), code = el.querySelector('code');
-  picker.addEventListener('input', () => { set(state.theme, f.path, picker.value); select.value = ''; code.textContent = picker.value; render(); });
-  select.addEventListener('change', () => {
-    const v = select.value || picker.value;
-    set(state.theme, f.path, v);
-    picker.value = resolve(v);
-    code.textContent = select.value ? '' : v;
-    render();
-  });
+  el.className = 'field' + (f.wide ? ' wide' : '');
+  el.dataset.spot = spotKey;
+  el.addEventListener('pointerenter', () => spot(spotKey));
+  el.addEventListener('pointerleave', () => { if (!el.contains(document.activeElement)) spot(null); });
+  el.addEventListener('focusin', () => spot(spotKey));
+  el.addEventListener('focusout', e => { if (!el.contains(e.relatedTarget)) spot(null); });
   return el;
 }
 
-function glyphField(f, getValue, setValue) {
+// A colour: a picker and its hex. A colour that follows the person's Claude Code
+// theme says so; changing it makes it a fixed colour, and "Built-in" goes back.
+function colorField(f) {
   const id = 'f' + (++uid);
-  const el = document.createElement('div');
-  el.className = 'field';
+  const el = fieldBox(f, spotOf(f.path));
+  const builtIn = get(DEFAULT_THEME, f.path.replace(/^prompt\.row\.\d+/, m => 'prompt.row.' + (Number(m.split('.').pop()) % DEFAULT_THEME.prompt.row.length)));
+  el.innerHTML = `<label for="${id}">${f.label}</label><div class="color-row">
+    <input type="color" id="${id}">
+    <input type="text" aria-label="${f.label}: hex value" spellcheck="false" autocomplete="off" maxlength="7">
+    <button type="button" class="undo">Built-in</button></div>
+    <div class="follows">Follows your Claude Code theme</div>`;
+  const picker = el.querySelector('input[type=color]'), hex = el.querySelector('input[type=text]');
+  const undo = el.querySelector('.undo'), follows = el.querySelector('.follows');
+  const show = () => {
+    const value = get(state.theme, f.path);
+    picker.value = resolve(value);
+    hex.value = resolve(value);
+    follows.hidden = !THEME_KEYS.includes(value);
+    undo.hidden = value === builtIn;
+  };
+  const put = v => { set(state.theme, f.path, v); show(); render(); };
+  picker.addEventListener('input', () => put(picker.value));
+  hex.addEventListener('input', () => { if (HEX.test(hex.value)) put(hex.value.toLowerCase()); });
+  hex.addEventListener('blur', show);
+  undo.addEventListener('click', () => put(builtIn));
+  show();
+  return el;
+}
+
+function glyphField(f, getValue, setValue, spotKey) {
+  const id = 'f' + (++uid);
+  const el = fieldBox(f, spotKey);
   el.innerHTML = `<label for="${id}">${f.label}</label><div class="glyph-row"><input type="text" id="${id}" maxlength="2" autocomplete="off" spellcheck="false"></div><div class="err" aria-live="polite"></div>`;
   const input = el.querySelector('input'), row = el.querySelector('.glyph-row'), err = el.querySelector('.err');
   input.value = getValue();
@@ -527,8 +579,7 @@ function glyphField(f, getValue, setValue) {
 
 function spaceField(f) {
   const id = 'f' + (++uid);
-  const el = document.createElement('div');
-  el.className = 'field';
+  const el = fieldBox(f, f.path);
   el.innerHTML = `<label for="${id}">${f.label}</label><div class="range-row"><input type="range" id="${id}" min="0" max="4" step="1" value="${get(state.theme, f.path)}"><output for="${id}">${get(state.theme, f.path)}</output></div>`;
   const input = el.querySelector('input'), out = el.querySelector('output');
   input.addEventListener('input', () => { set(state.theme, f.path, Number(input.value)); out.textContent = input.value; render(); });
@@ -537,7 +588,7 @@ function spaceField(f) {
 
 function rowField(f) {
   const el = document.createElement('div');
-  el.className = 'field';
+  el.className = 'field wide';
   el.innerHTML = `<span class="flabel">${f.label}</span><div class="symbols"></div><div><button type="button" class="btn add">Add a symbol</button></div>`;
   const list = el.querySelector('.symbols'), add = el.querySelector('.add');
   const draw = () => {
@@ -545,8 +596,11 @@ function rowField(f) {
     state.theme.prompt.row.forEach((m, i) => {
       const box = document.createElement('div');
       box.className = 'symbol';
-      box.appendChild(glyphField({ label: `Symbol ${i + 1}` }, () => state.theme.prompt.row[i].glyph, v => { state.theme.prompt.row[i].glyph = v; }));
-      box.appendChild(colorField({ path: `prompt.row.${i}.color`, label: `Symbol ${i + 1} colour` }));
+      const parts = document.createElement('div');
+      parts.className = 'fields';
+      parts.appendChild(glyphField({ label: `Symbol ${i + 1}`, wide: true }, () => state.theme.prompt.row[i].glyph, v => { state.theme.prompt.row[i].glyph = v; }, `prompt.row.${i}`));
+      parts.appendChild(colorField({ path: `prompt.row.${i}.color`, label: `Symbol ${i + 1} colour` }));
+      box.appendChild(parts);
       if (state.theme.prompt.row.length > 1) {
         const rm = document.createElement('button');
         rm.type = 'button'; rm.className = 'btn remove'; rm.textContent = 'Remove';
@@ -562,32 +616,23 @@ function rowField(f) {
   return el;
 }
 
-function buildControls() {
-  controls.innerHTML = '';
-  for (const g of GROUPS) {
-    const d = document.createElement('details');
-    d.className = 'group'; d.id = 'group-' + g.id;
-    if (g.id === 'prompt' || g.id === 'chips') d.open = true;
-    d.innerHTML = `<summary>${g.title}<span class="swatches" aria-hidden="true"></span></summary><div class="fields"></div>`;
-    const fields = d.querySelector('.fields');
+function buildSteps() {
+  steps.innerHTML = '';
+  GROUPS.forEach((g, n) => {
+    const step = document.createElement('section');
+    step.className = 'step'; step.id = 'step-' + g.id;
+    step.setAttribute('aria-labelledby', `step-${g.id}-title`);
+    step.innerHTML = `<h2 id="step-${g.id}-title"><span class="n">${String(n + 1).padStart(2, '0')}</span>${g.title}</h2><p>${g.about}</p>
+      <div class="term" aria-label="Preview of ${g.title.toLowerCase()}"></div><div class="fields"></div>`;
+    const fields = step.querySelector('.fields');
     for (const f of g.fields) {
       if (f.type === 'color') fields.appendChild(colorField(f));
-      else if (f.type === 'glyph') fields.appendChild(glyphField(f, () => get(state.theme, f.path), v => set(state.theme, f.path, v)));
+      else if (f.type === 'glyph') fields.appendChild(glyphField(f, () => get(state.theme, f.path), v => set(state.theme, f.path, v), spotOf(f.path)));
       else if (f.type === 'space') fields.appendChild(spaceField(f));
       else if (f.type === 'row') fields.appendChild(rowField(f));
     }
-    controls.appendChild(d);
-  }
-}
-
-function renderSwatches() {
-  for (const g of GROUPS) {
-    const box = document.querySelector(`#group-${g.id} .swatches`);
-    if (!box) continue;
-    const colours = g.fields.filter(f => f.type === 'color').map(f => resolve(get(state.theme, f.path)));
-    if (g.id === 'prompt') state.theme.prompt.row.forEach(m => colours.push(resolve(m.color)));
-    box.innerHTML = colours.slice(0, 6).map(c => `<i style="background:${c}"></i>`).join('');
-  }
+    steps.appendChild(step);
+  });
 }
 
 function buildPresets() {
@@ -610,21 +655,23 @@ function applyPreset(name) {
 function syncModes() {
   document.querySelectorAll('#modes button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === state.mode)));
 }
-function refresh() { buildPresets(); syncModes(); buildControls(); render(); }
+function refresh() { buildPresets(); syncModes(); buildSteps(); render(); }
 
-document.querySelectorAll('#modes button').forEach(b => b.addEventListener('click', () => { state.mode = b.dataset.mode; syncModes(); buildControls(); render(); }));
+document.querySelectorAll('#modes button').forEach(b => b.addEventListener('click', () => { state.mode = b.dataset.mode; syncModes(); buildSteps(); render(); }));
 
-// Clicking a part of the preview opens its controls.
-document.getElementById('term').addEventListener('click', e => {
-  const part = e.target.closest('[data-part]');
-  if (!part) return;
-  const group = document.getElementById('group-' + part.dataset.part);
-  if (!group) return;
-  group.open = true;
-  group.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
-  group.classList.add('flash');
-  setTimeout(() => group.classList.remove('flash'), 1200);
-  group.querySelector('input, select, button')?.focus({ preventScroll: true });
+// Clicking a piece of any preview finds the setting that draws it.
+document.addEventListener('click', e => {
+  const piece = e.target.closest('.term [data-path]');
+  if (!piece) return;
+  const key = piece.dataset.path;
+  const field = document.querySelector(`.field[data-spot="${key}"]`);
+  if (!field) return;
+  const step = field.closest('.step');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!step.contains(piece)) step.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  step.classList.add('flash');
+  setTimeout(() => step.classList.remove('flash'), 1200);
+  field.querySelector('input, select, button')?.focus({ preventScroll: true });
 });
 
 function status(text) { document.getElementById('status').textContent = text; }
@@ -648,7 +695,7 @@ document.getElementById('import').addEventListener('click', () => {
   text = text.replace(/^\/reply-highlight\s+theme\s+/, '');
   const start = text.indexOf('{'), end = text.lastIndexOf('}');
   let json;
-  try { json = JSON.parse(text.slice(start, end + 1)); } catch (_) { out.textContent = 'That is not a theme: paste the JSON or the whole /reply-highlight theme command.'; return; }
+  try { json = JSON.parse(text.slice(start, end + 1)); } catch (_) { out.textContent = 'That is not a theme: paste the output of /reply-highlight theme current, or a theme command.'; return; }
   const read = readTheme(json);
   state.theme = read.theme;
   refresh();
