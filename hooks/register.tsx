@@ -21,8 +21,10 @@ export const register: Register = on => {
 
     return (
       <Box flexDirection="column">
-        {blocks.map(b => {
-          const marginTop = b.gap ? 1 : 0
+        {blocks.map((b, i) => {
+          // a terminal has no half lines, so list items get one empty row between them
+          const afterItem = b.kind === 'item' && blocks[i - 1]?.kind === 'item'
+          const marginTop = b.gap || afterItem ? 1 : 0
           if (b.kind === 'heading') {
             return (
               <Box marginTop={marginTop}>
