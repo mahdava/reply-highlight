@@ -27,9 +27,13 @@ const QUOTE_COLOR = 'merged'
 // Code blocks: the language in a muted yellow over the stripe's background.
 const CODE_LABEL_COLOR = '#8f7f45'
 
-// Your own prompts between two full-width rows of flowers, yellow and pink
-// in turn, behind a yellow chevron: easy to find when scrolling back.
-const PROMPT_FLOWER_COLORS = ['warning', '#f4a6cb']
+// Your own prompts between two full-width rows of leaves and flowers, in
+// muted green and pink that sit back into the black, behind a yellow
+// chevron: easy to find when scrolling back.
+const PROMPT_ROW = [
+  { glyph: '❧', color: '#3f6a49' },
+  { glyph: BULLET, color: '#7a4d63' },
+]
 const PROMPT_CHEVRON = '❯'
 
 // Each kind of marked word as a small chip. A mod is not told the theme, so
@@ -228,7 +232,7 @@ export const register: Register = on => {
       <Box height={1} overflow="hidden">
         <Text>
           {Array.from({ length: 200 }, (_, i) => (
-            <Text color={PROMPT_FLOWER_COLORS[i % PROMPT_FLOWER_COLORS.length]}>{BULLET + ' '}</Text>
+            <Text color={PROMPT_ROW[i % PROMPT_ROW.length].color}>{PROMPT_ROW[i % PROMPT_ROW.length].glyph + ' '}</Text>
           ))}
         </Text>
       </Box>
