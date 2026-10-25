@@ -64,7 +64,10 @@ h1 .mark { color: var(--accent); }
 .term .row { white-space: pre; overflow: hidden; height: 1.45em; }
 .term .item { display: grid; grid-template-columns: max-content max-content minmax(0, 1fr); }
 .term .item > span { white-space: pre-wrap; }
-.term .tbl .ln { white-space: pre; }
+/* A terminal row is 1.45em; each line takes a row of its own, drawn through its middle. */
+.term .tbl { font: inherit; color: inherit; border-collapse: collapse; table-layout: fixed; border: 1px solid var(--t-line); margin-block: 0.725em; }
+.term .tbl td { border: 1px solid var(--t-line); padding: 0.725em 1ch; white-space: pre; overflow: hidden; vertical-align: top; }
+.term .tbl td[style] { background: linear-gradient(var(--stripe), var(--stripe)) center / 100% 1.45em no-repeat; }
 .term .dim { color: var(--t-dim); }
 .term .chip { border-radius: 0; }
 .term [data-part] { cursor: pointer; border-radius: 3px; outline: 1px dashed transparent; outline-offset: 1px; transition: outline-color 120ms; }
@@ -392,21 +395,16 @@ function items(list) {
   }).join('');
 }
 
+// Lines as CSS borders, columns in `ch`: the browser's fallback font for box-drawing
+// characters is not one cell wide, and line height leaves gaps between │ rows.
 function table(head, rows) {
   const t = state.theme;
   const widths = head.map((h, i) => Math.max(h.length, ...rows.map(r => plainLen(r[i]))));
-  const ln = s => sp(s, { fg: t.table.line, part: 'table' });
-  const rule = (l, m, r) => `<div class="ln">${ln(l + '─' + widths.map(w => '─'.repeat(w)).join('─' + m + '─') + '─' + r)}</div>`;
-  const cells = (texts, draw, bg) => {
-    const parts = texts.map((x, i) => draw(x) + ' '.repeat(widths[i] - plainLen(x)));
-    const style = bg ? ` style="background:${resolve(bg)}"` : '';
-    return `<div class="ln"${style} data-part="table">${ln('│ ')}${parts.join(ln(' │ '))}${ln(' │')}</div>`;
-  };
-  return '<div class="tbl">' + rule('┌', '┬', '┐') +
-    cells(head, h => sp(h, { fg: t.table.header, bold: true, part: 'table' })) +
-    rule('├', '┼', '┤') +
-    rows.map((r, n) => (n > 0 ? rule('├', '┼', '┤') : '') + cells(r, prose, n % 2 === 0 ? t.table.stripe : null)).join('') +
-    rule('└', '┴', '┘') + '</div>';
+  const cols = widths.map(w => `<col style="width:calc(${w + 2}ch + 1px)">`).join('');
+  const cells = (texts, draw, bg) => '<tr>' + texts.map(x => `<td${bg ? ` style="--stripe:${resolve(bg)}"` : ''}>${draw(x)}</td>`).join('') + '</tr>';
+  return `<table class="tbl" data-part="table" style="--t-line:${resolve(t.table.line)}"><colgroup>${cols}</colgroup>` +
+    cells(head, h => sp(h, { fg: t.table.header, bold: true })) +
+    rows.map((r, n) => cells(r, prose, n % 2 === 0 ? t.table.stripe : null)).join('') + '</table>';
 }
 
 function codeBlock(lang, lines) {
