@@ -470,7 +470,7 @@ function codeBlock(lang, lines) {
     .replace(/('[^']*')/g, `<span style="color:${str}">$1</span>`)
     .replace(/\b(const|let|return|export|function)\b/g, `<span style="color:${kw}">$1</span>`);
   return line(sp('── ', { fg: t.code.line, path: 'code.line' }) + sp(lang, { fg: t.code.label, path: 'code.label' }) + sp(' ' + '─'.repeat(20), { fg: t.code.line, path: 'code.line' })) +
-    lines.map(l => `<div class="ln" style="background:${bg}" data-path="code.background">${colour(l) || ' '}</div>`).join('');
+    lines.map(l => `<div class="ln" style="background:${bg}" data-path="code">${colour(l) || ' '}</div>`).join('');
 }
 
 const quote = text => line(sp(state.theme.quote.glyph + ' ', { fg: state.theme.quote.color, path: 'quote' }) + prose(text));

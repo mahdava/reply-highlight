@@ -1,7 +1,8 @@
-# The theme designer is one static page: no build, just the designer folder.
+# The theme designer is one static page in the designer folder. The build only
+# checks it: when the check fails, Netlify keeps the last good page online.
 [build]
   publish = "designer"
-  command = ""
+  command = "node scripts/check-designer.mjs"
 
 [[headers]]
   for = "/*"

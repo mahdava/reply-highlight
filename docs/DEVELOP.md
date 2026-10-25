@@ -27,7 +27,8 @@ and symbols of the theme in use.
 | `tests/tools.test.ts` | Tool row words |
 | `tests/drawing.test.tsx` | Claude Code accepts the drawing of a reply and of tool rows |
 | `designer/index.html` | The theme designer, one stand-alone page. Its copy of the built-in look and the value rules must match `hooks/theme.ts`. |
-| `netlify.toml` | Serves the `designer` folder on Netlify as it is, with no build step |
+| `netlify.toml` | Serves the `designer` folder on Netlify, after `scripts/check-designer.mjs` passes |
+| `scripts/check-designer.mjs` | Checks the designer page before it is published |
 | `LICENSE` | The MIT License, for the code and documentation |
 | `.claude-plugin/plugin.json` | The manifest |
 | `.claude-plugin/marketplace.json` | Makes the repository its own marketplace |
@@ -46,11 +47,19 @@ Checks:
 ```
 claude plugin validate .
 claude plugin test .
+node scripts/check-designer.mjs
 ```
 
 `claude plugin validate` reads the manifest, the marketplace file and the
 module, and reports anything Claude Code would refuse. `claude plugin test`
 runs the tests inside Claude Code's own plugin host.
+`scripts/check-designer.mjs` checks the designer: every tag closed, the
+script parses, and its built-in look is the mod's. Where it finds a Chromium
+(`CHROME`, or Playwright's download) it also opens the page and checks that
+nothing throws, every step draws its preview and every setting outlines what
+it changes. Netlify runs it as the build, without a browser, and keeps the
+last good page online when it fails. Run it before pushing a change to the
+designer, so the browser part runs too.
 
 Type-checking uses the API types that Claude Code writes into
 `.claude-plugin/types/` when a session loads the plugin from a local folder,
