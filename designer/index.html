@@ -18,6 +18,7 @@
   --fg: #1f1d1a;
   --muted: #6b6559;
   --line: #e2ddd2;
+  --control: #8c8578;
   --accent: #9a6a00;
   --accent-soft: #fbf0d0;
   --danger: #b3261e;
@@ -28,12 +29,12 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #151412; --panel: #1d1c19; --fg: #ece8df; --muted: #a39d90; --line: #33302a;
+    --bg: #151412; --panel: #1d1c19; --fg: #ece8df; --muted: #a39d90; --line: #33302a; --control: #7a7466;
     --accent: #ffc107; --accent-soft: #3a3010; --danger: #ff8a80; --focus: #ffc107; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #151412; --panel: #1d1c19; --fg: #ece8df; --muted: #a39d90; --line: #33302a;
+  --bg: #151412; --panel: #1d1c19; --fg: #ece8df; --muted: #a39d90; --line: #33302a; --control: #7a7466;
   --accent: #ffc107; --accent-soft: #3a3010; --danger: #ff8a80; --focus: #ffc107; color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -60,12 +61,12 @@ h1 .mark { color: var(--accent); }
 /* Presets and terminal background: each label above its own segmented control. */
 .pickers { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: end; justify-content: space-between; }
 .picker { display: grid; gap: 6px; }
-.seg { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+.seg { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 3px; border: 1px solid var(--control); border-radius: 10px; background: var(--panel); }
 .seg button { border: 0; border-radius: 7px; background: transparent; color: var(--muted); font: 500 13px var(--body); padding: 6px 12px; cursor: pointer; transition: background-color 120ms, color 120ms; }
 .seg button:hover { color: var(--fg); background: color-mix(in srgb, var(--fg) 6%, transparent); }
 .seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--fg); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent); }
 @media (prefers-reduced-motion: reduce) { .seg button { transition: none; } }
-.label-sm { font-size: 12px; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+.label-sm { margin: 0; font-weight: 500; font-size: 12px; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
 
 /* The terminal: its own world, coloured only by the theme being designed. */
 .term {
@@ -95,9 +96,10 @@ h1 .mark { color: var(--accent); }
 .cmdbox { display: flex; gap: 8px; align-items: start; }
 .cmdbox pre:empty::before { content: "Change a colour or a symbol, and the command to paste shows here."; color: var(--muted); font-family: var(--body); }
 .out pre { flex: 1 1 auto; min-width: 0; margin: 0; font: 12px/1.5 var(--mono); white-space: pre-wrap; word-break: break-all; background: var(--bg); border-radius: 6px; padding: 10px; max-height: 9em; overflow: auto; }
-.btn { font: 600 13px var(--body); border-radius: 8px; padding: 8px 14px; cursor: pointer; border: 1px solid var(--line); background: var(--panel); color: var(--fg); }
+.btn { font: 600 13px var(--body); border-radius: 8px; padding: 8px 14px; cursor: pointer; border: 1px solid var(--control); background: var(--panel); color: var(--fg); }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: #1a1405; }
-.btn:focus-visible, .seg button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .sug:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+/* One focus ring for every control (WCAG 2.4.7). */
+:is(button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .status { font-size: 13px; color: var(--muted); }
 .status:empty { display: none; }
 
@@ -114,17 +116,17 @@ h1 .mark { color: var(--accent); }
 .field:hover, .field:focus-within { background: var(--accent-soft); }
 .field > label, .field > .flabel { font-size: 13px; font-weight: 500; }
 .color-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-.color-row input[type=color] { width: 38px; height: 30px; padding: 0; border: 1px solid var(--line); border-radius: 6px; background: none; cursor: pointer; }
+.color-row input[type=color] { width: 38px; height: 30px; padding: 0; border: 1px solid var(--control); border-radius: 6px; background: none; cursor: pointer; }
 .color-row input[type=text] { width: 11ch; font: 13px var(--mono); }
-.undo { font: 500 12px var(--body); color: var(--accent); background: none; border: 0; padding: 2px 4px; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
-select, input[type=text], textarea { font: 13px var(--body); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
+.undo { min-height: 24px; min-width: 24px; font: 500 12px var(--body); color: var(--accent); background: none; border: 0; padding: 2px 4px; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+select, input[type=text], textarea { font: 13px var(--body); color: var(--fg); background: var(--bg); border: 1px solid var(--control); border-radius: 6px; padding: 5px 8px; }
 .glyph-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .glyph-row input { width: 3.2em; text-align: center; font: 16px var(--mono); }
-.sug { font: 15px var(--mono); width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--fg); cursor: pointer; padding: 0; }
+.sug { font: 15px var(--mono); width: 30px; height: 30px; border: 1px solid var(--control); border-radius: 6px; background: var(--bg); color: var(--fg); cursor: pointer; padding: 0; }
 .sug[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
 .err { color: var(--danger); font-size: 12px; }
 .range-row { display: flex; gap: 10px; align-items: center; }
-.range-row input { flex: 1 1 auto; accent-color: var(--accent); }
+.range-row input { flex: 1 1 auto; height: 24px; accent-color: var(--accent); }
 .range-row output { font: 13px var(--mono); width: 2ch; text-align: right; }
 .symbols { display: grid; gap: 8px; }
 .symbol { display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr) auto; padding: 10px; border: 1px dashed var(--line); border-radius: 8px; }
@@ -141,16 +143,16 @@ dialog::backdrop { background: rgb(0 0 0 / 0.45); }
 .cmdline { display: inline-flex; gap: 6px; align-items: center; vertical-align: middle; }
 .dlg .cmdline { display: flex; margin-top: 4px; }
 /* A small square button with an icon: copying a command. */
-.icon-btn { display: inline-grid; place-items: center; width: 30px; height: 30px; flex: none; border: 1px solid var(--line); border-radius: 7px; background: var(--panel); color: var(--fg); cursor: pointer; padding: 0; }
+.icon-btn { display: inline-grid; place-items: center; width: 30px; height: 30px; flex: none; border: 1px solid var(--control); border-radius: 7px; background: var(--panel); color: var(--fg); cursor: pointer; padding: 0; }
 .icon-btn:hover { background: var(--accent-soft); }
 .icon-btn:disabled { opacity: 0.4; cursor: default; background: var(--panel); }
-.icon-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .icon-btn svg { fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
 .cmdline code { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; }
 footer { color: var(--muted); font-size: 13px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 </style>
 
-<div class="wrap">
+<main class="wrap">
   <header>
     <div class="title"><h1><span class="mark">✿</span> Reply Highlight Themes</h1>
       <button type="button" class="btn" id="open-import">Load your theme</button></div>
@@ -176,12 +178,12 @@ footer { color: var(--muted); font-size: 13px; }
           </div>
         </div>
       </div>
-      <div class="term" id="term" tabindex="0" aria-label="Preview of a whole Claude Code session with this theme"></div>
+      <div class="term" id="term" tabindex="0" role="figure" aria-label="Preview of a whole Claude Code session with this theme"></div>
       <div class="out">
-        <div class="bar"><span class="label-sm">Paste into Claude Code</span><span class="grow"></span>
+        <div class="bar"><h2 class="label-sm" id="cmd-title">Paste into Claude Code</h2><span class="grow"></span>
           <button type="button" class="undo" id="reset">Back to preset</button>
         </div>
-        <div class="cmdbox"><pre id="cmd" tabindex="0" aria-label="Command to paste"></pre><button type="button" class="icon-btn" id="copy" data-copy-from="cmd" aria-label="Copy the command"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><rect x="5.5" y="5.5" width="8.5" height="8.5" rx="1.5"/><path d="M10.5 3.5V3A1.5 1.5 0 0 0 9 1.5H3A1.5 1.5 0 0 0 1.5 3v6A1.5 1.5 0 0 0 3 10.5h.5"/></svg></button></div>
+        <div class="cmdbox"><pre id="cmd" tabindex="0" aria-labelledby="cmd-title"></pre><button type="button" class="icon-btn" id="copy" data-copy-from="cmd" aria-label="Copy the command"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><rect x="5.5" y="5.5" width="8.5" height="8.5" rx="1.5"/><path d="M10.5 3.5V3A1.5 1.5 0 0 0 9 1.5H3A1.5 1.5 0 0 0 1.5 3v6A1.5 1.5 0 0 0 3 10.5h.5"/></svg></button></div>
         <div class="status" id="status" role="status"></div>
       </div>
     </section>
@@ -210,7 +212,8 @@ footer { color: var(--muted); font-size: 13px; }
   </dialog>
 
   <footer>Needs the Reply Highlight mod for Claude Code. The command saves the theme in <code>~/.claude/reply-highlight/theme.json</code>; <code>/reply-highlight reset</code> goes back to the built-in look.</footer>
-</div>
+</main>
+<div class="sr-only" id="announce" role="status"></div>
 
 <script>
 // The built-in look, as hooks/theme.ts in the mod has it.
@@ -586,7 +589,7 @@ function colorField(f) {
   el.innerHTML = `<label for="${id}">${f.label}</label><div class="color-row">
     <input type="color" id="${id}">
     <input type="text" aria-label="${f.label}: hex value" spellcheck="false" autocomplete="off" maxlength="7">
-    <button type="button" class="undo">Built-in</button></div>`;
+    <button type="button" class="undo" aria-label="${f.label}: back to the built-in colour">Built-in</button></div>`;
   const picker = el.querySelector('input[type=color]'), hex = el.querySelector('input[type=text]');
   const undo = el.querySelector('.undo');
   const show = () => {
@@ -607,7 +610,7 @@ function colorField(f) {
 function glyphField(f, getValue, setValue, spotKey) {
   const id = 'f' + (++uid);
   const el = fieldBox(f, spotKey);
-  el.innerHTML = `<label for="${id}">${f.label}</label><div class="glyph-row"><input type="text" id="${id}" maxlength="2" autocomplete="off" spellcheck="false"></div><div class="err" aria-live="polite"></div>`;
+  el.innerHTML = `<label for="${id}">${f.label}</label><div class="glyph-row" role="group" aria-label="${f.label}: suggestions"><input type="text" id="${id}" maxlength="2" autocomplete="off" spellcheck="false" aria-describedby="${id}-err"></div><div class="err" id="${id}-err" aria-live="polite"></div>`;
   const input = el.querySelector('input'), row = el.querySelector('.glyph-row'), err = el.querySelector('.err');
   input.value = getValue();
   const mark = () => row.querySelectorAll('.sug').forEach(b => b.setAttribute('aria-pressed', String(b.textContent === getValue())));
@@ -651,7 +654,7 @@ function rowField(f) {
       box.appendChild(parts);
       if (state.theme.prompt.row.length > 1) {
         const rm = document.createElement('button');
-        rm.type = 'button'; rm.className = 'btn remove'; rm.textContent = 'Remove';
+        rm.type = 'button'; rm.className = 'btn remove'; rm.textContent = 'Remove'; rm.setAttribute('aria-label', `Remove symbol ${i + 1}`);
         rm.addEventListener('click', () => { state.theme.prompt.row.splice(i, 1); draw(); render(); });
         box.appendChild(rm);
       }
@@ -671,7 +674,7 @@ function buildSteps() {
     step.className = 'step'; step.id = 'step-' + g.id;
     step.setAttribute('aria-labelledby', `step-${g.id}-title`);
     step.innerHTML = `<h2 id="step-${g.id}-title"><span class="n">${String(n + 1).padStart(2, '0')}</span>${g.title}</h2><p>${g.about}</p>
-      <div class="term" aria-label="Preview of ${g.title.toLowerCase()}"></div><div class="fields"></div>`;
+      <div class="term" role="figure" aria-label="Preview of ${g.title.toLowerCase()}"></div><div class="fields"></div>`;
     const fields = step.querySelector('.fields');
     for (const f of g.fields) {
       if (f.type === 'color') fields.appendChild(colorField(f));
@@ -723,6 +726,8 @@ document.addEventListener('click', e => {
 });
 
 function status(text) { document.getElementById('status').textContent = text; }
+// Short news for screen readers, where nothing on screen says it (a copy from the dialog).
+function announce(text) { const el = document.getElementById('announce'); el.textContent = ''; setTimeout(() => { el.textContent = text; }, 50); }
 
 // Every icon button with data-copy-from copies the text of the element it names,
 // shows a tick for a moment, and selects the text where copying is blocked.
@@ -734,6 +739,7 @@ document.querySelectorAll('[data-copy-from]').forEach(button => button.addEventL
   const done = () => {
     button.innerHTML = DONE_ICON;
     button.setAttribute('aria-label', 'Copied');
+    announce('Copied ' + source.textContent.slice(0, 40) + (source.textContent.length > 40 ? '…' : ''));
     if (button.id === 'copy') status('Copied. Paste it at the Claude Code prompt and press Enter.');
     setTimeout(() => { button.innerHTML = COPY_ICON; button.setAttribute('aria-label', label); }, 1500);
   };

@@ -12,7 +12,8 @@
 // 5. Where a Chromium is found (CHROME, or Playwright's download), the page is
 //    opened headless: no script errors, the whole-session preview and the
 //    command sit in the side column, every step draws its preview, and every
-//    setting outlines something when pointed at.
+//    setting outlines something when pointed at. With AXE naming a copy of
+//    axe-core's axe.min.js, the page must also pass axe's WCAG 2.2 AA rules.
 
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
@@ -116,13 +117,19 @@ if (problems.length === 0 && chrome) {
       if (!document.querySelector('.term [data-path="' + f.dataset.spot + '"]')) found.push('the setting for ' + f.dataset.spot + ' outlines nothing');
     });
     // Split, so the dumped page holds the marker only where the result is.
-    document.body.insertAdjacentHTML('beforeend', '<pre id="__' + 'check">' + JSON.stringify(found) + '</pre>');
+    const report = () => document.body.insertAdjacentHTML('beforeend', '<pre id="__' + 'check">' + JSON.stringify(found) + '</pre>');
+    if (!window.axe) return report();
+    axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] } }).then(r => {
+      for (const v of r.violations) found.push('WCAG (axe ' + v.id + '): ' + v.help + ' — ' + v.nodes.slice(0, 3).map(n => n.target.join(' ')).join(', '));
+      report();
+    });
   })();</script>`
   const dir = mkdtempSync(join(tmpdir(), 'designer-check-'))
   try {
     const file = join(dir, 'index.html')
-    writeFileSync(file, page.replace('<title>', probe + '<title>') + checks)
-    const dom = execFileSync(chrome, ['--headless', '--no-sandbox', '--disable-gpu', '--virtual-time-budget=3000', '--dump-dom', `file://${file}`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
+    const axe = process.env.AXE ? `<script>${readFileSync(process.env.AXE, 'utf8')}</script>` : ''
+    writeFileSync(file, page.replace('<title>', probe + '<title>') + axe + checks)
+    const dom = execFileSync(chrome, ['--headless', '--no-sandbox', '--disable-gpu', '--virtual-time-budget=10000', '--dump-dom', `file://${file}`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
     const result = /<pre id="__check">([\s\S]*?)<\/pre>/.exec(dom)
     if (!result) problems.push('designer/index.html: the page stopped before its checks ran')
     else for (const p of JSON.parse(result[1].replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>'))) problems.push(`designer/index.html in a browser: ${p}`)
@@ -135,4 +142,4 @@ if (problems.length > 0) {
   console.error('The designer is not ready to publish:\n- ' + problems.join('\n- '))
   process.exit(1)
 }
-console.log(`The designer checks out${chrome ? ', in a browser too' : ' (no Chromium here, so not opened in a browser)'}.`)
+console.log(`The designer checks out${chrome ? `, in a browser too${process.env.AXE ? ', with axe' : ''}` : ' (no Chromium here, so not opened in a browser)'}.`)

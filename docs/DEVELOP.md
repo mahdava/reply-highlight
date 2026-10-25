@@ -59,7 +59,13 @@ script parses, and its built-in look is the mod's. Where it finds a Chromium
 nothing throws, every step draws its preview and every setting outlines what
 it changes. Netlify runs it as the build, without a browser, and keeps the
 last good page online when it fails. Run it before pushing a change to the
-designer, so the browser part runs too.
+designer, so the browser part runs too. With `AXE` naming a copy of
+axe-core's `axe.min.js` (from any project that installs `axe-core`), the page
+must also pass axe's WCAG 2.2 AA rules:
+
+```
+AXE=path/to/node_modules/axe-core/axe.min.js node scripts/check-designer.mjs
+```
 
 Type-checking uses the API types that Claude Code writes into
 `.claude-plugin/types/` when a session loads the plugin from a local folder,
