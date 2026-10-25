@@ -43,6 +43,7 @@ body {
 }
 .wrap { max-width: 1320px; margin: 0 auto; display: grid; gap: 20px; }
 header { display: grid; gap: 6px; }
+header .title { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
 h1 { font: 700 clamp(26px, 4vw, 36px)/1.1 var(--display); margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
 h1 .mark { color: var(--accent); }
 .lede { margin: 0; color: var(--muted); max-width: 70ch; }
@@ -119,16 +120,25 @@ select, input[type=text], textarea { font: 13px var(--body); color: var(--fg); b
 .symbols { display: grid; gap: 8px; }
 .symbol { display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr) auto; padding: 10px; border: 1px dashed var(--line); border-radius: 8px; }
 .symbol .remove { align-self: start; }
-.import { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
-.import > summary { cursor: pointer; padding: 12px 16px; font: 600 15px var(--body); }
-.import .body { display: grid; gap: 8px; padding: 0 16px 16px; }
-.import textarea { width: 100%; min-height: 4.5em; font: 12px var(--mono); resize: vertical; }
+dialog { border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--fg); padding: 0; width: min(640px, calc(100vw - 32px)); max-height: calc(100vh - 32px); }
+dialog::backdrop { background: rgb(0 0 0 / 0.45); }
+.dlg { display: grid; gap: 10px; padding: 20px; }
+.dlg h2 { font: 700 20px/1.2 var(--display); margin: 0; }
+.dlg p, .dlg ol { margin: 0; }
+.dlg ol { padding-left: 1.3em; display: grid; gap: 8px; }
+.dlg code { font: 13px var(--mono); }
+.dlg textarea { width: 100%; font: 12px/1.5 var(--mono); resize: vertical; }
+.dlg textarea::placeholder { color: var(--muted); opacity: 0.8; }
+.cmdline { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
+.cmdline code { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; }
+.btn.small { padding: 4px 10px; font-size: 12px; }
 footer { color: var(--muted); font-size: 13px; }
 </style>
 
 <div class="wrap">
   <header>
-    <h1><span class="mark">✿</span> Reply Highlight Themes</h1>
+    <div class="title"><h1><span class="mark">✿</span> Reply Highlight Themes</h1>
+      <button type="button" class="btn" id="open-import">Load your theme</button></div>
     <p class="lede">Design how Claude's replies and your prompts look in the terminal with the Reply Highlight mod. Each part has its own preview: point at a setting to see what it changes, or click a part of a preview to find its setting. Then copy the command and paste it into Claude Code.</p>
   </header>
 
@@ -155,16 +165,30 @@ footer { color: var(--muted); font-size: 13px; }
         <pre id="cmd" tabindex="0" aria-label="Command to paste"></pre>
         <div class="status" id="status" role="status"></div>
       </div>
-      <details class="import">
-        <summary>Load a theme you already have</summary>
-        <div class="body">
-          <label for="import-text" class="flabel">Paste the output of <code>/reply-highlight theme current</code>, or a theme command</label>
-          <textarea id="import-text" spellcheck="false" placeholder='{"heading":"#ff8800"}'></textarea>
-          <div class="bar"><button type="button" class="btn" id="import">Load</button><span class="status" id="import-status" role="status"></span></div>
-        </div>
-      </details>
     </section>
   </div>
+
+  <dialog id="import-dialog" aria-labelledby="import-title">
+    <form method="dialog" class="dlg">
+      <h2 id="import-title">Load your theme</h2>
+      <p>Start from the look you already use in Claude Code:</p>
+      <ol>
+        <li>At the Claude Code prompt, run
+          <span class="cmdline"><code id="current-cmd">/reply-highlight theme current</code><button type="button" class="btn small" id="copy-current">Copy</button></span>
+        </li>
+        <li>Select everything it prints and copy it. The sentence above the theme and the marks in front of the lines can come along: only the part between <code>{</code> and <code>}</code> is read.</li>
+        <li>Paste it below and press Load.</li>
+      </ol>
+      <p class="hint">A <code>/reply-highlight theme {...}</code> command copied from this page works too.</p>
+      <label for="import-text" class="flabel">Your theme</label>
+      <textarea id="import-text" spellcheck="false" rows="9"></textarea>
+      <div class="err" id="import-error" role="alert"></div>
+      <div class="bar"><span class="grow"></span>
+        <button type="submit" class="btn" value="cancel" formnovalidate>Cancel</button>
+        <button type="button" class="btn primary" id="import">Load</button>
+      </div>
+    </form>
+  </dialog>
 
   <footer>Needs the Reply Highlight mod for Claude Code. The command saves the theme in <code>~/.claude/reply-highlight/theme.json</code>; <code>/reply-highlight reset</code> goes back to the built-in look.</footer>
 </div>
@@ -696,17 +720,46 @@ document.getElementById('copy').addEventListener('click', () => {
 });
 document.getElementById('reset').addEventListener('click', () => applyPreset(state.preset));
 
+// Loading a theme: the output of /reply-highlight theme current, or a theme command.
+const importDialog = document.getElementById('import-dialog');
+const importText = document.getElementById('import-text');
+const importError = document.getElementById('import-error');
+importText.placeholder = [
+  'reply-highlight: The built-in look. Paste it into the theme designer\'s …',
+  '{',
+  '  "heading": "claude",',
+  '  "subheading": "#d9a27c",',
+  '  "label": "success",',
+  '  "bullet": { "glyph": "✿", "color": "warning" },',
+  '  …',
+  '}',
+].join('\n');
+document.getElementById('open-import').addEventListener('click', () => {
+  importError.textContent = '';
+  importDialog.showModal();
+  importText.focus();
+});
+// A click on the dimmed page around the dialog closes it.
+importDialog.addEventListener('click', e => { if (e.target === importDialog) importDialog.close(); });
+document.getElementById('copy-current').addEventListener('click', e => {
+  const button = e.currentTarget;
+  try {
+    navigator.clipboard.writeText('/reply-highlight theme current').then(() => { button.textContent = 'Copied'; setTimeout(() => { button.textContent = 'Copy'; }, 1500); });
+  } catch (_) { /* the command is on screen to type */ }
+});
 document.getElementById('import').addEventListener('click', () => {
-  const out = document.getElementById('import-status');
-  let text = document.getElementById('import-text').value.trim();
-  text = text.replace(/^\/reply-highlight\s+theme\s+/, '');
+  const text = importText.value.trim().replace(/^\/reply-highlight\s+theme\s+/, '');
   const start = text.indexOf('{'), end = text.lastIndexOf('}');
   let json;
-  try { json = JSON.parse(text.slice(start, end + 1)); } catch (_) { out.textContent = 'That is not a theme: paste the output of /reply-highlight theme current, or a theme command.'; return; }
+  try { json = JSON.parse(text.slice(start, end + 1)); } catch (_) {
+    importError.textContent = start < 0 ? 'There is no theme here yet: paste what /reply-highlight theme current prints.' : 'That theme is cut short or changed: copy it again, from the { to the last }.';
+    return;
+  }
   const read = readTheme(json);
   state.theme = read.theme;
   refresh();
-  out.textContent = read.problems.length ? `Loaded. Kept the built-in look for: ${read.problems.join('; ')}` : 'Loaded.';
+  importDialog.close();
+  status(read.problems.length ? `Loaded your theme. Kept the built-in look for: ${read.problems.join('; ')}` : 'Loaded your theme.');
 });
 
 refresh();
