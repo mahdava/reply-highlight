@@ -27,8 +27,8 @@ const QUOTE_COLOR = 'merged'
 // Code blocks: the language in a muted yellow over the stripe's background.
 const CODE_LABEL_COLOR = '#8f7f45'
 
-// Your own prompts between two rows of five flowers, yellow and pink in
-// turn, behind a yellow chevron: easy to find when scrolling back.
+// Your own prompts between two full-width rows of flowers, yellow and pink
+// in turn, behind a yellow chevron: easy to find when scrolling back.
 const PROMPT_FLOWER_COLORS = ['warning', '#f4a6cb']
 const PROMPT_CHEVRON = '❯'
 
@@ -221,12 +221,17 @@ export const register: Register = on => {
       return next(e)
     }
     const { Box, Text } = $.ui.resolve(e)
+    // More flowers than any window is wide, in a box one row high that hides
+    // the rest: the row fills the width and never wraps onto a second line,
+    // however the terminal is resized.
     const flowers = (
-      <Text>
-        {[0, 1, 2, 3, 4].map(i => (
-          <Text color={PROMPT_FLOWER_COLORS[i % PROMPT_FLOWER_COLORS.length]}>{(i > 0 ? ' ' : '') + BULLET}</Text>
-        ))}
-      </Text>
+      <Box height={1} overflow="hidden">
+        <Text>
+          {Array.from({ length: 200 }, (_, i) => (
+            <Text color={PROMPT_FLOWER_COLORS[i % PROMPT_FLOWER_COLORS.length]}>{BULLET + ' '}</Text>
+          ))}
+        </Text>
+      </Box>
     )
     return (
       <Box flexDirection="column" marginTop={1}>
