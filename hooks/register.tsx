@@ -13,8 +13,8 @@ const LABEL_COLOR = 'merged'
 // these are raw colours picked for the dark theme.
 const CHIPS: Record<Kind, { color: string; backgroundColor: string }> = {
   file: { color: '#8fd6c9', backgroundColor: '#17312d' },
-  hash: { color: '#e8c27a', backgroundColor: '#352b17' },
-  code: { color: '#c9cdd6', backgroundColor: '#2b2f38' },
+  hash: { color: '#f5dc6e', backgroundColor: '#33300f' },
+  code: { color: '#f4a6cb', backgroundColor: '#3a2131' },
 }
 
 // Rewrites only what the transcript draws for a reply; the stored message
