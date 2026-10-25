@@ -7,26 +7,37 @@ Code's own plugin environment, with no Node APIs. Back to the
 It reads a reply in two steps. `layout()` splits the reply's markdown into
 blocks, and `runs()` splits a line of text into styled pieces. Both are
 plain functions with no engine calls, so the tests drive them directly.
-`register.tsx` draws the blocks with the terminal's elements.
+`register.tsx` draws the blocks with the terminal's elements, in the colours
+and symbols of the theme in use.
 
 | File | Holds |
 | --- | --- |
-| `hooks/register.tsx` | The hooks and the drawing: replies, tables, code blocks, quotes, your prompts and the end-of-turn line. Every colour and symbol is a constant at the top. |
+| `hooks/register.tsx` | The hooks and the drawing: replies, tables, code blocks, quotes, your prompts, tool rows and the end-of-turn line; reading the saved theme at session start and the `/reply-highlight` command |
+| `hooks/theme.ts` | The theme: its shape, the built-in look (`DEFAULT_THEME`), `readTheme()`, which checks a saved theme value by value, and `changes()`, what a theme changes |
+| `hooks/tools.ts` | The words of tool rows: `groupSummary()` and `callHeader()` |
 | `hooks/layout.ts` | `layout()`: a reply as headings, paragraphs, list items (with their label column), tables, quotes, code blocks and the markdown left to the terminal |
 | `hooks/inline.ts` | `runs()`: one line's inline code, bold, italic and marked words as styled pieces |
-| `hooks/highlight.ts` | Which words are files, commit hashes or names from code (`marks()`, `kindOf()`), and `highlight()`, which marks them as inline code in the markdown left to the terminal |
+| `hooks/highlight.ts` | Which words are links, files, commit hashes or names from code (`marks()`, `kindOf()`), and `highlight()`, which marks them as inline code in the markdown left to the terminal |
 | `hooks/hooks.json` | Names the hooks module |
 | `tests/layout.test.ts` | Splitting a reply into blocks, labels, tables, quotes and code blocks |
 | `tests/inline.test.ts` | Styled pieces and word kinds |
 | `tests/highlight.test.ts` | Which words are marked, and what is left as written |
+| `tests/theme.test.ts` | Reading a saved theme, and what it changes |
+| `tests/command.test.ts` | `/reply-highlight` against a home folder in memory |
+| `tests/tools.test.ts` | Tool row words |
+| `tests/drawing.test.tsx` | Claude Code accepts the drawing of a reply and of tool rows |
+| `designer/index.html` | The theme designer, published as an artifact from this file. Its copy of the built-in look and the value rules must match `hooks/theme.ts`. |
 | `LICENSE` | The MIT License, for the code and documentation |
 | `.claude-plugin/plugin.json` | The manifest |
 | `.claude-plugin/marketplace.json` | Makes the repository its own marketplace |
 | `docs/` | The guide, install, troubleshooting and this page, linked from the README |
 
-To change a colour or symbol, edit its constant at the top of
-`hooks/register.tsx`. A theme key (`'claude'`, `'success'`, `'warning'`,
-`'merged'`) follows the person's theme; a `#rrggbb` colour does not.
+To change the built-in look, edit `DEFAULT_THEME` in `hooks/theme.ts` and
+the same object in `designer/index.html`, then publish the designer again. A
+theme key (`'claude'`, `'success'`, `'warning'`, `'merged'`) follows the
+person's theme; a `#rrggbb` colour does not. The designer's preview uses
+Claude Code's dark and light theme colours for the keys, read from Claude
+Code itself; refresh `PALETTES` there when Claude Code's themes change.
 
 Checks:
 

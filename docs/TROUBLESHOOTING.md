@@ -31,10 +31,23 @@ normal view, so no prompt was framed. Update the plugin.
 
 ## Why do the colours look heavy or hard to read?
 
-The chips, table lines, table stripe and prompt rows use colours picked for
-the dark theme, because a mod is not told which theme is in use. In a light
-theme they look heavy. The colours are constants at the top of
-`hooks/register.tsx`; see [Developing Reply Highlight](DEVELOP.md).
+The built-in chips, table lines, table stripe and prompt rows use colours
+picked for the dark theme, because a mod is not told which theme is in use.
+In a light theme they look heavy. Open the
+[theme designer](https://claude.ai/artifact/E6XtQwk7cZfjXLgEmjyGFf), start
+from the Light terminal preset, and paste its command.
+
+## Why did my theme not change everything I set?
+
+A value that does not fit the rules keeps the built-in look, and the
+`/reply-highlight theme` answer names each one: a colour must be `#rrggbb`
+or a theme colour name, and a symbol one character one cell wide (no emoji).
+See [Themes](GUIDE.md#themes). A theme file with a mistake in it is named in
+a dim line when a session starts, and the built-in look is used.
+
+## Why is there no `/reply-highlight` command?
+
+The command came in 1.1.0. Update the plugin, then run `/reload-plugins`.
 
 ## Why does a word get a colour it should not have, or miss one?
 

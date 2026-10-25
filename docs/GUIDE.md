@@ -1,8 +1,8 @@
 # Using Reply Highlight
 
 This guide covers what Reply Highlight draws: each part of a reply, your own
-prompts and the line that ends a turn, what it leaves to the terminal, and
-its limits. Back to the [README](../README.md).
+prompts, tool rows and the line that ends a turn, how to change its colours
+and symbols with a theme, what it leaves to the terminal, and its limits. Back to the [README](../README.md).
 
 ## How it works
 
@@ -57,11 +57,12 @@ one row is the smallest gap.
 
 ### Words in colour
 
-In paragraphs, list items, table cells and quotes, three kinds of words get
+In paragraphs, list items, table cells and quotes, four kinds of words get
 a colour on a background of the same tone, like a small chip:
 
 | Kind | Examples | Colour |
 | --- | --- | --- |
+| Links | `https://claude.ai/artifact/…`, the whole address without the full stop after it, underlined | Soft blue |
 | File names and paths | `hooks/layout.ts`, `README.md`, `src/app.ts:42`, `~/.claude`, `feat/gris-1-name` | Teal |
 | Commit hashes | `a782c71`, 7 to 40 hex characters with at least one digit and one letter | Yellow |
 | Names from code | `layout()`, `lastSeen`, `OPENCLAW_COAUTHOR`, `approval_timeout_seconds` | Pink |
@@ -103,10 +104,60 @@ than any window is wide, in a box one row tall that hides the rest.
 
 Messages from other agents and notifications keep Claude Code's own drawing.
 
+## Tool rows
+
+A collapsed group of tool calls is one line: a purple ❀ and what the calls
+did, counted (“Read 2 files, ran 1 shell command”), with a red “· 1 failed”
+when a call failed. While a call in it runs, the flower turns into a yellow
+◌.
+
+Each tool call's header gets a mark before the tool's name: an orange ● when
+it finished, a yellow ◌ while it runs and a red ✕ when it failed. After the
+name comes what the call was about: a file as a chip, otherwise the call's
+description, command, pattern or address in dim text.
+
+The result under a call (a diff, a command's output) stays Claude Code's own
+drawing, and so does an interrupted call, which says so.
+
 ## The end of a turn
 
 The line that ends a turn ("Cooked for 1m 42s") gets a yellow ✿ in front,
 and the rest is dimmed.
+
+## Themes
+
+Every colour and symbol above is part of a theme. The built-in one is the
+look described on this page; a theme you save changes only the values it
+names.
+
+The easiest way to make one is the
+[theme designer](https://claude.ai/artifact/E6XtQwk7cZfjXLgEmjyGFf): it shows a
+sample session drawn the way the terminal draws it, with a colour picker for
+every part, symbol choices and four presets (Built-in, Light terminal, High
+contrast, Quiet). Click a part of the preview to jump to its controls. Copy
+command gives the line to paste at the Claude Code prompt.
+
+| Command | What it does |
+| --- | --- |
+| `/reply-highlight` | Shows the saved theme |
+| `/reply-highlight theme {...}` | Saves a theme and redraws the transcript with it at once |
+| `/reply-highlight reset` | Goes back to the built-in look |
+
+The theme is saved in `~/.claude/reply-highlight/theme.json`, as only the
+values that differ from the built-in look, so later changes to the built-in
+look still reach you. Each session reads it when it starts.
+
+A colour is either `#rrggbb` or one of Claude Code's theme colours by name
+(`claude`, `success`, `warning`, `merged`, `error`, `suggestion`,
+`inactive`, `subtle`, `text` and a few more). Named colours follow your
+Claude Code theme; `#rrggbb` colours stay the same in every theme. A symbol
+is one character that takes one cell: emoji take two and would push rows out
+of line, so they are refused. Empty lines around your prompts go from 0 to 4,
+and the rows around them hold 1 to 8 symbols.
+
+A value that does not fit these rules keeps the built-in look, and the
+command's answer names it. The designer and the mod check values by the same
+rules.
 
 ## What stays with the terminal
 
@@ -119,14 +170,14 @@ These parts are drawn by Claude Code as before:
 
 ## Limits
 
-- **The colours are fixed.** A mod is not told which theme is in use. The
-  theme keys (orange, green, yellow, purple) follow the theme; the chips,
-  table lines, stripe and prompt rows are raw colours picked for the dark
-  theme and look heavy in a light one.
+- **The built-in colours suit the dark theme.** A mod is not told which
+  theme is in use. Named colours follow it; the chips, table lines, stripe
+  and prompt rows are `#rrggbb` colours picked for the dark theme. On a light
+  theme, start from the designer's Light terminal preset.
 - **Only the terminal is styled.** The desktop app, VS Code and the mobile
   app use their own drawing of a reply.
-- **Tool lines and the spinner are not styled.** Every tool draws its line
-  its own way, and a mod can change the spinner's word but not its symbol.
+- **The spinner is not styled.** A mod can change the spinner's word but
+  not its symbol.
 - **Long prompts are drawn in full.** The mod draws every prompt you typed
   whole, including a long paste.
 - **Wrapped table cells** can leave gaps in the side lines on the rows
