@@ -213,10 +213,11 @@ export const register: Register = on => {
     )
   })
 
-  // Draws a prompt you typed; notifications, messages from other agents and
-  // the one-line short form keep the engine's drawing.
+  // Draws a prompt you typed; notifications and messages from other agents
+  // keep the engine's drawing. (A typed prompt reads isExpanded false in the
+  // normal view too, so that flag is no sign of a shortened row here.)
   on('ui.render', { component: 'UserMessage' }, ($, e, next) => {
-    if (e.props.origin.kind !== 'composer' || !e.props.isExpanded) {
+    if (e.props.origin.kind !== 'composer') {
       return next(e)
     }
     const { Box, Text } = $.ui.resolve(e)
