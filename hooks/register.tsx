@@ -18,7 +18,7 @@ const BULLET_COLOR = 'warning'
 // Table lines in a dark yellow that barely stands out from the black.
 const LINE_COLOR = '#37311a'
 // Odd body rows sit on a faintly lighter background, so rows are easy to follow.
-const STRIPE_COLOR = '#1b1b1b'
+const STRIPE_COLOR = '#131313'
 
 // Each kind of marked word as a small chip. A mod is not told the theme, so
 // these are raw colours picked for the dark theme.
