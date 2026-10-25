@@ -2,14 +2,98 @@ import type { Register } from 'claude-code'
 
 import { runs } from './inline'
 import { layout } from './layout'
-import { DEFAULT_THEME, type Theme } from './theme'
+import { changes, DEFAULT_THEME, readTheme, type Theme } from './theme'
 
 // The look in use: the built-in theme until a saved one is read.
 let theme: Theme = DEFAULT_THEME
 
-// Rewrites only what the transcript draws for a reply; the stored message
-// and what the model reads stay as they were.
+// Where /reply-highlight keeps a saved theme: only the values that differ
+// from the built-in look, so later changes to the built-in look still reach it.
+const THEME_FILE = '.claude/reply-highlight/theme.json'
+
+const USAGE = [
+  'Usage:',
+  '  /reply-highlight              show the saved theme',
+  "  /reply-highlight theme {...}  save a theme (from the theme designer's Copy command button)",
+  '  /reply-highlight reset        go back to the built-in look',
+].join('\n')
+
 export const register: Register = on => {
+  on('session.start', async ($, e, next) => {
+    try {
+      await $.command.register({
+        name: 'reply-highlight',
+        description: "Show, save or reset Reply Highlight's theme: the colours and symbols of replies and prompts",
+        argumentHint: '[theme {...}|reset]',
+        immediate: true,
+      })
+    } catch (cause) {
+      $.ui.log(`reply-highlight: /reply-highlight is unavailable: ${String(cause)}`)
+    }
+    const home = (await $.env.get('HOME')) ?? (await $.env.get('USERPROFILE'))
+    if (home !== undefined) {
+      const saved = await $.fs.read(`${home}/${THEME_FILE}`).catch(() => null)
+      if (saved !== null) {
+        let json: unknown
+        try {
+          json = JSON.parse(saved)
+        } catch {
+          $.ui.log(`reply-highlight: ~/${THEME_FILE} is not valid JSON; using the built-in look`)
+        }
+        const read = readTheme(json)
+        theme = read.theme
+        if (read.problems.length > 0) {
+          $.ui.log(`reply-highlight: kept the built-in look for: ${read.problems.join('; ')}`)
+        }
+        $.ui.invalidate('ui.render')
+      }
+    }
+    return next(e)
+  })
+
+  on('command.run', { command: 'reply-highlight' }, async ($, e) => {
+    const [word, ...rest] = e.args.trim().split(/\s+/)
+    const home = (await $.env.get('HOME')) ?? (await $.env.get('USERPROFILE'))
+    if (home === undefined) {
+      return { text: 'Reply Highlight cannot find your home folder (HOME is unset).' }
+    }
+    const file = `${home}/${THEME_FILE}`
+
+    if (word === '' || word === 'show') {
+      const saved = changes(theme)
+      return {
+        text:
+          saved === undefined
+            ? `The built-in look; no saved changes.\n\n${USAGE}`
+            : `Saved in ~/${THEME_FILE}:\n${JSON.stringify(saved, null, 2)}\n\n${USAGE}`,
+      }
+    }
+    if (word === 'reset') {
+      await $.fs.write(file, '{}\n')
+      theme = DEFAULT_THEME
+      $.ui.invalidate('ui.render')
+      return { text: 'Back to the built-in look.' }
+    }
+    if (word === 'theme') {
+      let json: unknown
+      try {
+        json = JSON.parse(rest.join(' '))
+      } catch {
+        return { text: `That theme is not valid JSON. Copy it again from the theme designer.\n\n${USAGE}` }
+      }
+      const read = readTheme(json)
+      const saved = changes(read.theme) ?? {}
+      await $.fs.write(file, JSON.stringify(saved, null, 2) + '\n')
+      theme = read.theme
+      $.ui.invalidate('ui.render')
+      const kept = read.problems.length > 0 ? `\nKept the built-in look for:\n- ${read.problems.join('\n- ')}` : ''
+      return { text: `Theme saved in ~/${THEME_FILE}; replies and prompts are drawn with it now.${kept}` }
+    }
+    return { text: USAGE }
+  })
+
+  // Rewrites only what the transcript draws for a reply; the stored message
+  // and what the model reads stay as they were.
   on('ui.render', { component: 'AssistantMessage' }, ($, e, next) => {
     const blocks = layout(e.props.text)
     if (blocks.every(b => b.kind === 'markdown')) {
