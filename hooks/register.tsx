@@ -15,6 +15,9 @@ const BULLET = '✿'
 // the yellow of "auto mode on" in the prompt footer
 const BULLET_COLOR = 'warning'
 
+// Table lines in a dark yellow that barely stands out from the black.
+const LINE_COLOR = '#4d4521'
+
 // Each kind of marked word as a small chip. A mod is not told the theme, so
 // these are raw colours picked for the dark theme.
 const CHIPS: Record<Kind, { color: string; backgroundColor: string }> = {
@@ -58,33 +61,33 @@ export const register: Register = on => {
       )
     }
 
-    // A table with dim lines, a green header and the cells drawn as prose.
+    // A table with faint lines, a green header and the cells drawn as prose.
     // Columns start as wide as their longest cell and shrink together, wrapping,
     // when the window is narrower.
     const table = (head: string[], rows: string[][]) => {
       const widths = head.map((h, i) =>
         Math.max(h.length, ...rows.map(r => runs(r[i]).reduce((n, run) => n + run.text.length, 0)), 1),
       )
-      const dim = (text: string) => (
+      const line = (text: string) => (
         <Box flexShrink={0}>
-          <Text dimColor>{text}</Text>
+          <Text color={LINE_COLOR}>{text}</Text>
         </Box>
       )
       const row = (draw: (i: number) => unknown, left: string, middle: string, right: string) => (
         <Box flexDirection="row">
-          {dim(left)}
+          {line(left)}
           {widths.flatMap((w, i) => [
             <Box width={w} flexShrink={1}>
               {draw(i)}
             </Box>,
-            dim(i < widths.length - 1 ? middle : right),
+            line(i < widths.length - 1 ? middle : right),
           ])}
         </Box>
       )
       const rule = (left: string, middle: string, right: string) =>
         row(
           i => (
-            <Text dimColor wrap="truncate">
+            <Text color={LINE_COLOR} wrap="truncate">
               {'─'.repeat(widths[i])}
             </Text>
           ),
