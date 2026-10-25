@@ -1,0 +1,14 @@
+{
+  "name": "reply-highlight",
+  "owner": {
+    "name": "Lucia Nazzaro",
+    "url": "https://github.com/mahdava"
+  },
+  "description": "Reply Highlight: a Claude Code mod that colours Claude's replies in the terminal.",
+  "plugins": [
+    {
+      "name": "reply-highlight",
+      "source": "./"
+    }
+  ]
+}
