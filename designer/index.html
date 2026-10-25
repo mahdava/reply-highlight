@@ -504,7 +504,7 @@ const PARTS = {
     { label: 'Where to look', text: 'the table drawing.' },
   ]) + blank() + items([{ number: 1, text: 'Draw the lines' }, { number: 2, text: 'Add the header' }]) + blank() +
     items([{ text: 'Links stay clickable.' }, { text: 'The stored reply never changes.' }]),
-  chips: () => line(prose('Open {l:https://claude.ai/artifact/E6XtQwk7cZfjXLgEmjyGFf}. The change is in {f:hooks/register.tsx}, commit {h:43d8964}, inside {c:table()}.')),
+  chips: () => line(prose('Open {l:https://reply-highlight.netlify.app/}. The change is in {f:hooks/register.tsx}, commit {h:43d8964}, inside {c:table()}.')),
   table: () => table(['Kind', 'Example', 'Colour'], [['File', '{f:hooks/layout.ts}', 'teal'], ['Commit', '{h:0569c37}', 'yellow'], ['Code name', '{c:layout()}', 'pink'], ['Status', 'done', 'plain']]),
   quote: () => quote('Tables were the last part of a reply') + quote('in one flat colour.'),
   code: () => codeBlock('ts', ['// every other body row', 'const stripe = n % 2 === 0 ? theme.table.stripe : undefined']),
@@ -515,7 +515,7 @@ const PARTS = {
 function session() {
   return promptFrame('can you walk me through the new table drawing?') +
     toolRows() + blank() +
-    line(prose('Tables are now drawn by the mod. The change is in {f:hooks/register.tsx}, commit {h:43d8964}, inside {c:table()}. Designer: {l:https://claude.ai/artifact/E6XtQwk7cZfjXLgEmjyGFf}')) +
+    line(prose('Tables are now drawn by the mod. The change is in {f:hooks/register.tsx}, commit {h:43d8964}, inside {c:table()}. Designer: {l:https://reply-highlight.netlify.app/}')) +
     blank() + heading('Details', 2) + blank() +
     items([
       { label: 'Lines', text: 'a dark yellow that barely stands out from the black.' },

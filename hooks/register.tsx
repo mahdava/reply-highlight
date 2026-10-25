@@ -15,7 +15,7 @@ const THEME_FILE = '.claude/reply-highlight/theme.json'
 // Claude Code puts "reply-highlight: " in front, so the first line reads on from it.
 const USAGE = [
   "change how Claude's replies and your prompts look.",
-  'Pick colours and symbols in the theme designer: https://claude.ai/artifact/E6XtQwk7cZfjXLgEmjyGFf',
+  'Pick colours and symbols in the theme designer: https://reply-highlight.netlify.app/',
   '',
   '/reply-highlight theme current',
   '    Shows every colour and symbol in use now. Paste it into the designer\'s',

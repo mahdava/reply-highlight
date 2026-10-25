@@ -73,7 +73,7 @@ to the terminal and why.
 
 ## Make it your own
 
-Open the [theme designer](https://claude.ai/artifact/E6XtQwk7cZfjXLgEmjyGFf),
+Open the [theme designer](https://reply-highlight.netlify.app/),
 pick colours and symbols against a live preview of a session, then copy the
 command under the preview and paste it at the Claude Code prompt. The
 command holds every setting, so it can also be changed by hand before
@@ -91,7 +91,7 @@ built-in look. [Themes](docs/GUIDE.md#themes) in the guide has the details.
 ## Resources
 
 - [Guide](docs/GUIDE.md): every part of a reply the mod draws, themes, what it leaves to the terminal, and its limits
-- [Theme designer](https://claude.ai/artifact/E6XtQwk7cZfjXLgEmjyGFf): colours and symbols with a live preview
+- [Theme designer](https://reply-highlight.netlify.app/): colours and symbols with a live preview
 - [Install](docs/INSTALL.md): requirements, installing from a shell or the desktop app, updating and removing
 - [Troubleshooting](docs/TROUBLESHOOTING.md): fixes for the problems seen so far
 - [Develop](docs/DEVELOP.md): the files, the checks and working on a local copy

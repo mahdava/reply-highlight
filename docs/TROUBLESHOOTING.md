@@ -33,7 +33,7 @@ normal view, so no prompt was framed. Update the plugin.
 
 The built-in colours are picked for the dark theme, because a mod is not
 told which theme is in use. In a light theme some look heavy or faint. Open the
-[theme designer](https://claude.ai/artifact/E6XtQwk7cZfjXLgEmjyGFf), start
+[theme designer](https://reply-highlight.netlify.app/), start
 from the Light terminal preset, and paste its command.
 
 ## Why did my theme not change everything I set?

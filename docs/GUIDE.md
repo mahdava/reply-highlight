@@ -130,7 +130,7 @@ look described on this page; a theme you save changes only the values it
 names.
 
 The easiest way to make one is the
-[theme designer](https://claude.ai/artifact/E6XtQwk7cZfjXLgEmjyGFf): it shows a
+[theme designer](https://reply-highlight.netlify.app/): it shows a
 sample session drawn the way the terminal draws it, with a colour picker for
 every part, symbol choices and four presets (Built-in, Light terminal, High
 contrast, Quiet). Click a part of the preview to jump to its controls. Copy

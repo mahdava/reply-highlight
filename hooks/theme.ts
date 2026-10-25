@@ -1,6 +1,6 @@
 // Every colour and symbol the mod draws with, as one plain object: the
 // built-in look, and the overrides a person saves with /reply-highlight.
-// The theme designer artifact writes the same shape.
+// The theme designer (https://reply-highlight.netlify.app/) writes the same shape.
 
 /** A colour as `#rrggbb`. */
 export type Color = string
