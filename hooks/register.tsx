@@ -30,10 +30,11 @@ const CODE_LABEL_COLOR = '#8f7f45'
 // Your own prompts between two full-width rows of leaves and flowers, in
 // muted green and pink that sit back into the black, behind a yellow
 // chevron: easy to find when scrolling back.
-const PROMPT_ROW = [
-  { glyph: '❧', color: '#3f6a49' },
-  { glyph: BULLET, color: '#7a4d63' },
-]
+// Trial: four leaf shapes in turn (❦ ♣ ⚘ ⸙), each between pink flowers, so
+// one row shows them side by side. Back to one leaf once Lucia picks.
+const LEAF = '#3f6a49'
+const FLOWER = { glyph: BULLET, color: '#7a4d63' }
+const PROMPT_ROW = ['❦', '♣', '⚘', '⸙'].flatMap(glyph => [{ glyph, color: LEAF }, FLOWER])
 const PROMPT_CHEVRON = '❯'
 
 // Each kind of marked word as a small chip. A mod is not told the theme, so
