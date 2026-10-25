@@ -27,6 +27,10 @@ const QUOTE_COLOR = 'merged'
 // Code blocks: the language in a muted yellow over the stripe's background.
 const CODE_LABEL_COLOR = '#8f7f45'
 
+// Your own prompts on a faint green-tinted background, so each exchange is
+// easy to find when scrolling back. (A Box cannot add a border, only restyle one.)
+const PROMPT_BACKGROUND = '#122016'
+
 // Each kind of marked word as a small chip. A mod is not told the theme, so
 // these are raw colours picked for the dark theme.
 const CHIPS: Record<Kind, { color: string; backgroundColor: string }> = {
@@ -207,4 +211,40 @@ export const register: Register = on => {
       </Box>
     )
   })
+
+  // Wraps the engine's own drawing of a prompt you typed; notifications and
+  // messages from other agents keep theirs.
+  on('ui.render', { component: 'UserMessage' }, async ($, e, next) => {
+    if (e.props.origin.kind !== 'composer') {
+      return next(e)
+    }
+    const { Box } = $.ui.resolve(e)
+    return (
+      <Box backgroundColor={PROMPT_BACKGROUND}>
+        {await next(e)}
+      </Box>
+    )
+  })
+
+  // "Cooked for 1m 42s" with a flower in front, in the flower's yellow.
+  on('ui.render', { component: 'TurnDuration' }, ($, e) => {
+    const { Text } = $.ui.resolve(e)
+    return (
+      <Text dimColor>
+        <Text color={BULLET_COLOR}>{BULLET}</Text> {e.props.word} for {duration(e.props.durationMs)}
+      </Text>
+    )
+  })
+}
+
+/** 3s, 1m 4s or 1h 2m, as the engine writes a turn's length. */
+function duration(ms: number): string {
+  const s = Math.round(ms / 1000)
+  if (s < 60) {
+    return `${s}s`
+  }
+  if (s < 3600) {
+    return `${Math.floor(s / 60)}m ${s % 60}s`
+  }
+  return `${Math.floor(s / 3600)}h ${Math.floor((s % 3600) / 60)}m`
 }
