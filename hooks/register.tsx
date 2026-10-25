@@ -1,49 +1,11 @@
 import type { Register } from 'claude-code'
 
-import type { Kind } from './highlight'
 import { runs } from './inline'
 import { layout } from './layout'
+import { DEFAULT_THEME, type Theme } from './theme'
 
-// Theme keys, so the colours follow the person's light or dark theme.
-const HEADING_COLOR = 'claude'
-// ### and smaller: a softer orange, so the levels read apart.
-const SUBHEADING_COLOR = '#d9a27c'
-// The theme's green, picked from four trial greens for being easy to read.
-const LABEL_COLOR = 'success'
-
-// Bullets drawn as a small flower, and numbers in the same yellow. One
-// cell wide, unlike a flower emoji, so the text after it stays in line.
-const BULLET = '✿'
-// the yellow of "auto mode on" in the prompt footer
-const BULLET_COLOR = 'warning'
-
-// Table lines in a dark yellow that barely stands out from the black.
-const LINE_COLOR = '#37311a'
-// Odd body rows sit on a faintly lighter background, so rows are easy to follow.
-const STRIPE_COLOR = '#131313'
-
-// Quotes: a purple bar on the left, the colour labels had before green.
-const QUOTE_COLOR = 'merged'
-// Code blocks: the language in a muted yellow over the stripe's background.
-const CODE_LABEL_COLOR = '#8f7f45'
-
-// Your own prompts between two full-width rows of leaves and flowers, in
-// muted green and pink that sit back into the black, behind a yellow
-// chevron: easy to find when scrolling back.
-// The heart-shaped leaf, picked from four trial leaves.
-const PROMPT_ROW = [
-  { glyph: '❦', color: '#3f6a49' },
-  { glyph: BULLET, color: '#7a4d63' },
-]
-const PROMPT_CHEVRON = '❯'
-
-// Each kind of marked word as a small chip. A mod is not told the theme, so
-// these are raw colours picked for the dark theme.
-const CHIPS: Record<Kind, { color: string; backgroundColor: string }> = {
-  file: { color: '#8fd6c9', backgroundColor: '#17312d' },
-  hash: { color: '#f5dc6e', backgroundColor: '#33300f' },
-  code: { color: '#f4a6cb', backgroundColor: '#3a2131' },
-}
+// The look in use: the built-in theme until a saved one is read.
+let theme: Theme = DEFAULT_THEME
 
 // Rewrites only what the transcript draws for a reply; the stored message
 // and what the model reads stay as they were.
@@ -59,7 +21,7 @@ export const register: Register = on => {
     const prose = (text: string) => (
       <Text>
         {runs(text).map(r => (
-          <Text weight={r.bold ? 'bold' : undefined} italic={r.italic} {...(r.kind ? CHIPS[r.kind] : {})}>
+          <Text weight={r.bold ? 'bold' : undefined} italic={r.italic} {...(r.kind ? { color: theme.chips[r.kind].color, backgroundColor: theme.chips[r.kind].background } : {})}>
             {r.text}
           </Text>
         ))}
@@ -74,7 +36,7 @@ export const register: Register = on => {
       return (
         <Text>
           {indent}
-          <Text color={BULLET_COLOR}>{/\d/.test(sign) ? sign : BULLET}</Text>
+          {/\d/.test(sign) ? <Text color={theme.number}>{sign}</Text> : <Text color={theme.bullet.color}>{theme.bullet.glyph}</Text>}
           {space}
         </Text>
       )
@@ -89,7 +51,7 @@ export const register: Register = on => {
       )
       const line = (text: string) => (
         <Box flexShrink={0}>
-          <Text color={LINE_COLOR}>{text}</Text>
+          <Text color={theme.table.line}>{text}</Text>
         </Box>
       )
       const row = (draw: (i: number) => unknown, left: string, middle: string, right: string, background?: string) => (
@@ -106,7 +68,7 @@ export const register: Register = on => {
       const rule = (left: string, middle: string, right: string) =>
         row(
           i => (
-            <Text color={LINE_COLOR} wrap="truncate">
+            <Text color={theme.table.line} wrap="truncate">
               {'─'.repeat(widths[i])}
             </Text>
           ),
@@ -120,7 +82,7 @@ export const register: Register = on => {
           {rule('┌', '┬', '┐')}
           {row(
             i => (
-              <Text weight="bold" color={LABEL_COLOR}>
+              <Text weight="bold" color={theme.table.header}>
                 {head[i]}
               </Text>
             ),
@@ -131,7 +93,7 @@ export const register: Register = on => {
           {rule('├', '┼', '┤')}
           {rows.flatMap((r, n) => [
             ...(n > 0 ? [rule('├', '┼', '┤')] : []),
-            row(i => prose(r[i]), '│ ', ' │ ', ' │', n % 2 === 0 ? STRIPE_COLOR : undefined),
+            row(i => prose(r[i]), '│ ', ' │ ', ' │', n % 2 === 0 ? theme.table.stripe : undefined),
           ])}
           {rule('└', '┴', '┘')}
         </Box>
@@ -147,7 +109,7 @@ export const register: Register = on => {
           if (b.kind === 'heading') {
             return (
               <Box marginTop={marginTop}>
-                <Text weight="bold" color={b.level <= 2 ? HEADING_COLOR : SUBHEADING_COLOR}>
+                <Text weight="bold" color={b.level <= 2 ? theme.heading : theme.subheading}>
                   {b.text}
                 </Text>
               </Box>
@@ -161,7 +123,7 @@ export const register: Register = on => {
                 </Box>
                 {b.label !== '' && (
                   <Box width={b.width} flexShrink={0}>
-                    <Text weight="bold" color={LABEL_COLOR}>
+                    <Text weight="bold" color={theme.label}>
                       {b.label}:
                     </Text>
                   </Box>
@@ -176,11 +138,11 @@ export const register: Register = on => {
             return (
               <Box flexDirection="column" marginTop={marginTop}>
                 <Text>
-                  <Text color={LINE_COLOR}>{'── '}</Text>
-                  <Text color={CODE_LABEL_COLOR}>{b.lang || 'code'}</Text>
-                  <Text color={LINE_COLOR}>{' ' + '─'.repeat(20)}</Text>
+                  <Text color={theme.code.line}>{'── '}</Text>
+                  <Text color={theme.code.label}>{b.lang || 'code'}</Text>
+                  <Text color={theme.code.line}>{' ' + '─'.repeat(20)}</Text>
                 </Text>
-                <Box backgroundColor={STRIPE_COLOR}>
+                <Box backgroundColor={theme.code.background}>
                   <Markdown text={b.text} />
                 </Box>
               </Box>
@@ -192,7 +154,7 @@ export const register: Register = on => {
                 {b.lines.map(l => (
                   <Box flexDirection="row">
                     <Box flexShrink={0}>
-                      <Text color={QUOTE_COLOR}>{'▎ '}</Text>
+                      <Text color={theme.quote.color}>{theme.quote.glyph + ' '}</Text>
                     </Box>
                     <Box flexGrow={1} flexShrink={1}>
                       {prose(l)}
@@ -226,26 +188,27 @@ export const register: Register = on => {
       return next(e)
     }
     const { Box, Text } = $.ui.resolve(e)
-    // More flowers than any window is wide, in a box one row high that hides
+    // More symbols than any window is wide, in a box one row high that hides
     // the rest: the row fills the width and never wraps onto a second line,
     // however the terminal is resized.
+    const { row: marks, chevron } = theme.prompt
     const flowers = (
       <Box height={1} overflow="hidden">
         <Text>
           {Array.from({ length: 200 }, (_, i) => (
-            <Text color={PROMPT_ROW[i % PROMPT_ROW.length].color}>{PROMPT_ROW[i % PROMPT_ROW.length].glyph + ' '}</Text>
+            <Text color={marks[i % marks.length].color}>{marks[i % marks.length].glyph + ' '}</Text>
           ))}
         </Text>
       </Box>
     )
-    // Two empty rows above the frame set each exchange apart from the one
-    // before; two below lead into the reply.
+    // Empty rows above the frame set each exchange apart from the one before;
+    // those below lead into the reply.
     return (
-      <Box flexDirection="column" marginTop={2} marginBottom={2}>
+      <Box flexDirection="column" marginTop={theme.prompt.spaceAbove} marginBottom={theme.prompt.spaceBelow}>
         {flowers}
-        <Box flexDirection="row" marginY={1}>
+        <Box flexDirection="row" marginY={theme.prompt.spaceInside}>
           <Box flexShrink={0}>
-            <Text color={BULLET_COLOR}>{PROMPT_CHEVRON + ' '}</Text>
+            <Text color={chevron.color}>{chevron.glyph + ' '}</Text>
           </Box>
           <Box flexGrow={1} flexShrink={1}>
             <Text>{e.props.text}</Text>
@@ -256,12 +219,12 @@ export const register: Register = on => {
     )
   })
 
-  // "Cooked for 1m 42s" with a flower in front, in the flower's yellow.
+  // "Cooked for 1m 42s" with a flower in front.
   on('ui.render', { component: 'TurnDuration' }, ($, e) => {
     const { Text } = $.ui.resolve(e)
     return (
       <Text dimColor>
-        <Text color={BULLET_COLOR}>{BULLET}</Text> {e.props.word} for {duration(e.props.durationMs)}
+        <Text color={theme.turn.color}>{theme.turn.glyph}</Text> {e.props.word} for {duration(e.props.durationMs)}
       </Text>
     )
   })
