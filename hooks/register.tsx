@@ -16,7 +16,9 @@ const BULLET = '✿'
 const BULLET_COLOR = 'warning'
 
 // Table lines in a dark yellow that barely stands out from the black.
-const LINE_COLOR = '#4d4521'
+const LINE_COLOR = '#37311a'
+// Odd body rows sit on a faintly lighter background, so rows are easy to follow.
+const STRIPE_COLOR = '#1b1b1b'
 
 // Each kind of marked word as a small chip. A mod is not told the theme, so
 // these are raw colours picked for the dark theme.
@@ -73,8 +75,8 @@ export const register: Register = on => {
           <Text color={LINE_COLOR}>{text}</Text>
         </Box>
       )
-      const row = (draw: (i: number) => unknown, left: string, middle: string, right: string) => (
-        <Box flexDirection="row">
+      const row = (draw: (i: number) => unknown, left: string, middle: string, right: string, background?: string) => (
+        <Box flexDirection="row" backgroundColor={background}>
           {line(left)}
           {widths.flatMap((w, i) => [
             <Box width={w} flexShrink={1}>
@@ -112,7 +114,7 @@ export const register: Register = on => {
           {rule('├', '┼', '┤')}
           {rows.flatMap((r, n) => [
             ...(n > 0 ? [rule('├', '┼', '┤')] : []),
-            row(i => prose(r[i]), '│ ', ' │ ', ' │'),
+            row(i => prose(r[i]), '│ ', ' │ ', ' │', n % 2 === 0 ? STRIPE_COLOR : undefined),
           ])}
           {rule('└', '┴', '┘')}
         </Box>
