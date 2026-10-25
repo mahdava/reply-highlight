@@ -32,8 +32,22 @@ test('a plain table becomes its header and rows', async () => {
   ])
 })
 
-test('code blocks, tables with links and lines with links are left to markdown', async () => {
-  const kept = ['```\n## not a heading\n- Label: not an item\n```', '| a | b |\n|---|---|\n| [x](https://example.com) | y |', 'See [the docs](https://example.com).']
+test('a code block keeps its lines whole and names its language', async () => {
+  expect(layout('```ts\n## not a heading\n- Label: not an item\n```\nAfter.')).toEqual([
+    { kind: 'code', gap: false, lang: 'ts', text: '```ts\n## not a heading\n- Label: not an item\n```' },
+    { kind: 'para', gap: false, text: 'After.' },
+  ])
+})
+
+test('quote lines next to each other are one quote', async () => {
+  expect(layout('> first\n> second\n\n> apart')).toEqual([
+    { kind: 'quote', gap: false, lines: ['first', 'second'] },
+    { kind: 'quote', gap: true, lines: ['apart'] },
+  ])
+})
+
+test('tables with links and lines with links are left to markdown', async () => {
+  const kept = ['| a | b |\n|---|---|\n| [x](https://example.com) | y |', 'See [the docs](https://example.com).']
   for (const text of kept) {
     expect(layout(text).every(b => b.kind === 'markdown')).toBe(true)
   }

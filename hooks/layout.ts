@@ -1,6 +1,7 @@
-// Splits a reply into the parts the mod draws itself (headings, paragraphs and
-// list items) and the markdown it leaves to the terminal (code blocks, tables,
-// quotes, rules and lines with links, which stay pressable that way).
+// Splits a reply into the parts the mod draws itself (headings, paragraphs,
+// list items, tables, quotes and the frame of code blocks) and the markdown it
+// leaves to the terminal (rules, HTML and lines with links, which stay
+// pressable that way).
 
 import { highlight } from './highlight'
 
@@ -12,6 +13,8 @@ export type Block = { gap: boolean } & (
   | { kind: 'para'; text: string }
   | { kind: 'item'; marker: string; label: string; rest: string; width: number }
   | { kind: 'table'; head: string[]; rows: string[][] }
+  | { kind: 'quote'; lines: string[] }
+  | { kind: 'code'; lang: string; text: string }
 )
 
 const FENCE = /^\s*(```|~~~)/
@@ -21,7 +24,8 @@ const TABLE_ROW = /^\s*\|/
 const TABLE_RULE = /^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?\s*$/
 const LINK = /\[[^\]]*\]\(|<https?:/
 const LIST = /^(\s*(?:[-*+]|\d+[.)])\s+)(.*)$/
-const ENGINE_DRAWS = /^\s*[|><]|^\s*([-*_])(\s*\1){2,}\s*$|\[[^\]]*\]\(|<https?:|~~/
+const QUOTE = /^\s*>\s?(.*)$/
+const ENGINE_DRAWS = /^\s*[|<]|^\s*([-*_])(\s*\1){2,}\s*$|\[[^\]]*\]\(|<https?:|~~/
 
 // "- **Label:** rest", "- **Label**: rest" or "- Label: rest", at any indent.
 const ITEM = /^(\s*(?:[-*+]|\d+[.)])\s+)(?:\*\*([^*\n]{1,60}?):?\*\*:?|([^:`*[\n]{2,40}?):)(?=\s|$)\s*(.*)$/
@@ -35,7 +39,7 @@ export function layout(text: string): Block[] {
   const blocks: Block[] = []
   let pending: string[] = []
   let pendingGap = false
-  let inFence = false
+  let code: Extract<Block, { kind: 'code' }> | null = null
   let blankBefore = false
 
   const flush = () => {
@@ -49,13 +53,27 @@ export function layout(text: string): Block[] {
   }
 
   for (const line of text.split('\n')) {
-    const fence = FENCE.test(line)
-    if (fence || inFence || ENGINE_DRAWS.test(line)) {
+    const fence = FENCE.exec(line)
+    if (code) {
+      // the code block's own lines, its closing fence last; the terminal
+      // still draws them, so their colours stay
+      code.text += '\n' + line
+      code = fence ? null : code
+      continue
+    }
+    if (fence) {
+      flush()
+      const lang = line.trim().slice(fence[1].length).trim().split(/\s/)[0]
+      code = { kind: 'code', gap: blankBefore && blocks.length > 0, lang, text: line }
+      blocks.push(code)
+      blankBefore = false
+      continue
+    }
+    if (ENGINE_DRAWS.test(line)) {
       if (pending.length === 0) {
         pendingGap = blankBefore && blocks.length > 0
       }
       pending.push(line)
-      inFence = fence ? !inFence : inFence
       blankBefore = false
       continue
     }
@@ -71,8 +89,15 @@ export function layout(text: string): Block[] {
     const last = blocks[blocks.length - 1]
     const heading = HEADING.exec(line)
     const list = LIST.exec(line)
+    const quote = QUOTE.exec(line)
 
-    if (heading) {
+    if (quote) {
+      if (!gap && last?.kind === 'quote') {
+        last.lines.push(quote[1])
+      } else {
+        blocks.push({ kind: 'quote', gap, lines: [quote[1]] })
+      }
+    } else if (heading) {
       blocks.push({ kind: 'heading', gap: blocks.length > 0, level: heading[1].length, text: plain(heading[2]) })
     } else if (list) {
       const item = ITEM.exec(line)

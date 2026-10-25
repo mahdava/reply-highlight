@@ -22,6 +22,11 @@ const LINE_COLOR = '#37311a'
 // Odd body rows sit on a faintly lighter background, so rows are easy to follow.
 const STRIPE_COLOR = '#131313'
 
+// Quotes: a purple bar on the left, the colour labels had before green.
+const QUOTE_COLOR = 'merged'
+// Code blocks: the language in a muted yellow over the stripe's background.
+const CODE_LABEL_COLOR = '#8f7f45'
+
 // Each kind of marked word as a small chip. A mod is not told the theme, so
 // these are raw colours picked for the dark theme.
 const CHIPS: Record<Kind, { color: string; backgroundColor: string }> = {
@@ -154,6 +159,36 @@ export const register: Register = on => {
                 <Box flexGrow={1} flexShrink={1}>
                   {prose(b.rest)}
                 </Box>
+              </Box>
+            )
+          }
+          if (b.kind === 'code') {
+            return (
+              <Box flexDirection="column" marginTop={marginTop}>
+                <Text>
+                  <Text color={LINE_COLOR}>{'── '}</Text>
+                  <Text color={CODE_LABEL_COLOR}>{b.lang || 'code'}</Text>
+                  <Text color={LINE_COLOR}>{' ' + '─'.repeat(20)}</Text>
+                </Text>
+                <Box backgroundColor={STRIPE_COLOR}>
+                  <Markdown text={b.text} />
+                </Box>
+              </Box>
+            )
+          }
+          if (b.kind === 'quote') {
+            return (
+              <Box flexDirection="column" marginTop={marginTop}>
+                {b.lines.map(l => (
+                  <Box flexDirection="row">
+                    <Box flexShrink={0}>
+                      <Text color={QUOTE_COLOR}>{'▎ '}</Text>
+                    </Box>
+                    <Box flexGrow={1} flexShrink={1}>
+                      {prose(l)}
+                    </Box>
+                  </Box>
+                ))}
               </Box>
             )
           }
