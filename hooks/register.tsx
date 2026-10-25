@@ -110,7 +110,10 @@ export const register: Register = on => {
             ' │',
           )}
           {rule('├', '┼', '┤')}
-          {rows.map(r => row(i => prose(r[i]), '│ ', ' │ ', ' │'))}
+          {rows.flatMap((r, n) => [
+            ...(n > 0 ? [rule('├', '┼', '┤')] : []),
+            row(i => prose(r[i]), '│ ', ' │ ', ' │'),
+          ])}
           {rule('└', '┴', '┘')}
         </Box>
       )
