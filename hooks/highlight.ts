@@ -34,6 +34,15 @@ const MARKED = new RegExp(
   'g',
 )
 
+const HASH = /^(?=[0-9a-f]*\d)(?=[0-9a-f]*[a-f])[0-9a-f]{7,40}$/
+const FILE = new RegExp(String.raw`^[\w.-]+\.(?:${EXTENSIONS})(?::\d+(?:-\d+)?)?$`)
+
+/** What a marked word is, so each kind can get its own colour. */
+export type Kind = 'file' | 'hash' | 'code'
+
+/** A stretch of prose: plain, or a marked word with its kind. */
+export type Piece = { text: string; kind?: Kind }
+
 /** A reply's markdown with its key words marked for the terminal to colour. */
 export function highlight(text: string): string {
   let inFence = false
@@ -65,7 +74,40 @@ function markLine(line: string): string {
 }
 
 function markProse(prose: string): string {
-  return prose.replace(MARKED, word => (isWordWithSlash(word) ? word : `\`${word}\``))
+  return marks(prose)
+    .map(p => (p.kind ? `\`${p.text}\`` : p.text))
+    .join('')
+}
+
+/** Prose split into plain stretches and the words worth a colour. */
+export function marks(prose: string): Piece[] {
+  const pieces: Piece[] = []
+  let at = 0
+  for (const m of prose.matchAll(MARKED)) {
+    if (isWordWithSlash(m[0])) {
+      continue
+    }
+    if (m.index > at) {
+      pieces.push({ text: prose.slice(at, m.index) })
+    }
+    pieces.push({ text: m[0], kind: kindOf(m[0]) })
+    at = m.index + m[0].length
+  }
+  if (at < prose.length) {
+    pieces.push({ text: prose.slice(at) })
+  }
+  return pieces
+}
+
+/** A commit hash, a file or path, or else a name from code. */
+export function kindOf(word: string): Kind {
+  if (HASH.test(word)) {
+    return 'hash'
+  }
+  if (!word.includes('(') && (word.includes('/') || FILE.test(word))) {
+    return 'file'
+  }
+  return 'code'
 }
 
 // "and/or" and "TCP/IP" have a slash but are words, not paths: a path needs
