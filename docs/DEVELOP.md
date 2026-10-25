@@ -34,11 +34,12 @@ and symbols of the theme in use.
 | `docs/` | The guide, install, troubleshooting and this page, linked from the README |
 
 To change the built-in look, edit `DEFAULT_THEME` in `hooks/theme.ts` and
-the same object in `designer/index.html`. Netlify publishes the designer again with each push to `main`. A
-theme key (`'claude'`, `'success'`, `'warning'`, `'merged'`) follows the
-person's theme; a `#rrggbb` colour does not. The designer's preview uses
-Claude Code's dark and light theme colours for the keys, read from Claude
-Code itself; refresh `PALETTES` there when Claude Code's themes change.
+the same object in `designer/index.html`. Netlify publishes the designer
+again with each push to `main`. Every colour is `#rrggbb`: Claude Code's
+colour names (`claude`, `success`) are not accepted, because they read as
+nonsense to someone choosing colours. The designer's `PALETTES` holds only
+the background and text colours of Claude Code's dark and light themes, for
+the terminal around the preview.
 
 Checks:
 

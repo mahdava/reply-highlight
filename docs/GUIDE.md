@@ -27,17 +27,17 @@ A reply is split line by line into:
 
 ### Headings
 
-`#` and `##` headings are bold, in the theme's Claude orange. `###` and
+`#` and `##` headings are bold, in Claude orange (`#d77757`). `###` and
 smaller are bold in a softer orange, so the levels of a long reply read
 apart.
 
 ### Lists
 
-A bullet (`-`, `*` or `+`) is drawn as a yellow ✿, in the theme's colour for
-"auto mode on". A number keeps its number, in the same yellow. Nested items
+A bullet (`-`, `*` or `+`) is drawn as a yellow ✿ (`#ffc107`). A number
+keeps its number, in the same yellow. Nested items
 keep their indent.
 
-A labelled item draws its label in bold, in the theme's green, followed by a
+A labelled item draws its label in bold, in green (`#4eba65`), followed by a
 colon. All three ways of writing a label are read:
 
 ```
@@ -85,8 +85,7 @@ the whole table the columns shrink together and their text wraps.
 
 ### Quotes
 
-Each line of a quote gets a purple bar on its left, in the theme's colour
-for merged pull requests.
+Each line of a quote gets a purple bar (`#af87ff`) on its left.
 
 ### Code blocks
 
@@ -148,10 +147,7 @@ The theme is saved in `~/.claude/reply-highlight/theme.json`, as only the
 values that differ from the built-in look, so later changes to the built-in
 look still reach you. Each session reads it when it starts.
 
-A colour is either `#rrggbb` or one of Claude Code's theme colours by name
-(`claude`, `success`, `warning`, `merged`, `error`, `suggestion`,
-`inactive`, `subtle`, `text` and a few more). Named colours follow your
-Claude Code theme; `#rrggbb` colours stay the same in every theme. A symbol
+A colour is written `#rrggbb`, as the designer's colour pickers give it. A symbol
 is one character that takes one cell: emoji take two and would push rows out
 of line, so they are refused. Empty lines around your prompts go from 0 to 4,
 and the rows around them hold 1 to 8 symbols.
@@ -172,9 +168,8 @@ These parts are drawn by Claude Code as before:
 ## Limits
 
 - **The built-in colours suit the dark theme.** A mod is not told which
-  theme is in use. Named colours follow it; the chips, table lines, stripe
-  and prompt rows are `#rrggbb` colours picked for the dark theme. On a light
-  theme, start from the designer's Light terminal preset.
+  theme is in use, so the colours stay the same in both. On a light theme,
+  start from the designer's Light terminal preset.
 - **Only the terminal is styled.** The desktop app, VS Code and the mobile
   app use their own drawing of a reply.
 - **The spinner is not styled.** A mod can change the spinner's word but

@@ -31,9 +31,8 @@ normal view, so no prompt was framed. Update the plugin.
 
 ## Why do the colours look heavy or hard to read?
 
-The built-in chips, table lines, table stripe and prompt rows use colours
-picked for the dark theme, because a mod is not told which theme is in use.
-In a light theme they look heavy. Open the
+The built-in colours are picked for the dark theme, because a mod is not
+told which theme is in use. In a light theme some look heavy or faint. Open the
 [theme designer](https://claude.ai/artifact/E6XtQwk7cZfjXLgEmjyGFf), start
 from the Light terminal preset, and paste its command.
 
@@ -41,7 +40,7 @@ from the Light terminal preset, and paste its command.
 
 A value that does not fit the rules keeps the built-in look, and the
 `/reply-highlight theme` answer names each one: a colour must be `#rrggbb`
-or a theme colour name, and a symbol one character one cell wide (no emoji).
+(colour names such as `claude` are no longer read, since 1.3.0), and a symbol one character one cell wide (no emoji).
 See [Themes](GUIDE.md#themes). A theme file with a mistake in it is named in
 a dim line when a session starts, and the built-in look is used.
 
