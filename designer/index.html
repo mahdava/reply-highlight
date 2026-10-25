@@ -55,9 +55,14 @@ h1 .mark { color: var(--accent); }
 
 .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .bar .grow { flex: 1 1 auto; }
-.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--panel); }
-.seg button { border: 0; background: transparent; color: var(--fg); font: 500 13px var(--body); padding: 6px 12px; cursor: pointer; }
-.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--fg); box-shadow: inset 0 -2px 0 var(--accent); }
+/* Presets and terminal background: each label above its own segmented control. */
+.pickers { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: end; justify-content: space-between; }
+.picker { display: grid; gap: 6px; }
+.seg { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+.seg button { border: 0; border-radius: 7px; background: transparent; color: var(--muted); font: 500 13px var(--body); padding: 6px 12px; cursor: pointer; transition: background-color 120ms, color 120ms; }
+.seg button:hover { color: var(--fg); background: color-mix(in srgb, var(--fg) 6%, transparent); }
+.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--fg); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent); }
+@media (prefers-reduced-motion: reduce) { .seg button { transition: none; } }
 .label-sm { font-size: 12px; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
 
 /* The terminal: its own world, coloured only by the theme being designed. */
@@ -145,15 +150,19 @@ footer { color: var(--muted); font-size: 13px; }
     <section class="steps" id="steps" aria-label="The parts of the look"></section>
 
     <section class="stage" aria-label="Whole session and result">
-      <div class="bar">
-        <span class="label-sm">Start from</span>
-        <div class="seg" id="presets" role="group" aria-label="Presets"></div>
-        <span class="grow"></span>
-        <span class="label-sm">Terminal</span>
-        <div class="seg" id="modes" role="group" aria-label="Terminal background">
-          <button type="button" data-mode="dark" aria-pressed="true">Dark</button>
-          <button type="button" data-mode="light" aria-pressed="false">Light</button>
+      <div class="pickers">
+        <div class="picker">
+          <span class="label-sm" id="presets-label">Start from</span>
+          <div class="seg" id="presets" role="group" aria-labelledby="presets-label"></div>
         </div>
+        <div class="picker">
+          <span class="label-sm" id="modes-label">Terminal</span>
+          <div class="seg" id="modes" role="group" aria-labelledby="modes-label">
+            <button type="button" data-mode="dark" aria-pressed="true">☾ Dark</button>
+            <button type="button" data-mode="light" aria-pressed="false">☀ Light</button>
+          </div>
+        </div>
+      </div>
       </div>
       <div class="term" id="term" tabindex="0" aria-label="Preview of a whole Claude Code session with this theme"></div>
       <div class="out">
