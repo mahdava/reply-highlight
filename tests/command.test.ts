@@ -36,16 +36,20 @@ test('a pasted theme is saved as its changes and redraws the transcript', async 
   expect(answer.text).toContain('bullet.glyph: one character')
   expect(JSON.parse(files['/home/t/.claude/reply-highlight/theme.json'])).toEqual({ heading: '#ff8800' })
   expect(invalidated).toContain('ui.render')
-  expect((await run($, 'show')).text).toContain('"heading": "#ff8800"')
+  expect((await run($, 'theme current')).text).toContain('"heading": "#ff8800"')
 })
 
 test('a saved theme is read when the session starts, and reset clears it', async ($, on) => {
   const { files } = world(on, '{"table":{"stripe":"#000000"}}')
   await $.session.start({ cwd: '/repo', surface: 'terminal', isInteractive: true })
-  expect((await run($, '')).text).toContain('"stripe": "#000000"')
+  const current = (await run($, 'theme current')).text
+  expect(current).toContain('with your changes')
+  expect(current).toContain('"stripe": "#000000"')
+  expect(current).toContain('"heading": "claude"')
   expect((await run($, 'reset')).text).toBe('Back to the built-in look.')
   expect(files['/home/t/.claude/reply-highlight/theme.json']).toBe('{}\n')
-  expect((await run($, '')).text).toContain('The built-in look')
+  expect((await run($, 'theme current')).text).toContain('The built-in look. Paste')
+  expect((await run($, '')).text).toContain('/reply-highlight theme current')
 })
 
 test('text that is not JSON saves nothing', async ($, on) => {

@@ -14,9 +14,9 @@ const THEME_FILE = '.claude/reply-highlight/theme.json'
 
 const USAGE = [
   'Usage:',
-  '  /reply-highlight              show the saved theme',
-  "  /reply-highlight theme {...}  save a theme (from the theme designer's Copy command button)",
-  '  /reply-highlight reset        go back to the built-in look',
+  "  /reply-highlight theme current  show the theme in use, to load into the theme designer",
+  "  /reply-highlight theme {...}    save a theme (from the theme designer's Copy command button)",
+  '  /reply-highlight reset          go back to the built-in look',
 ].join('\n')
 
 export const register: Register = on => {
@@ -25,7 +25,7 @@ export const register: Register = on => {
       await $.command.register({
         name: 'reply-highlight',
         description: "Show, save or reset Reply Highlight's theme: the colours and symbols of replies and prompts",
-        argumentHint: '[theme {...}|reset]',
+        argumentHint: '[theme current|theme {...}|reset]',
         immediate: true,
       })
     } catch (cause) {
@@ -60,13 +60,10 @@ export const register: Register = on => {
     }
     const file = `${home}/${THEME_FILE}`
 
-    if (word === '' || word === 'show') {
-      const saved = changes(theme)
+    if (word === 'theme' && rest.join(' ') === 'current') {
+      const where = changes(theme) === undefined ? 'The built-in look' : `The built-in look with your changes from ~/${THEME_FILE}`
       return {
-        text:
-          saved === undefined
-            ? `The built-in look; no saved changes.\n\n${USAGE}`
-            : `Saved in ~/${THEME_FILE}:\n${JSON.stringify(saved, null, 2)}\n\n${USAGE}`,
+        text: `${where}. Paste it into the theme designer's "Load a theme you already have":\n${JSON.stringify(theme, null, 2)}`,
       }
     }
     if (word === 'reset') {
