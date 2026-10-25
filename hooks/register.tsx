@@ -12,11 +12,22 @@ let theme: Theme = DEFAULT_THEME
 // from the built-in look, so later changes to the built-in look still reach it.
 const THEME_FILE = '.claude/reply-highlight/theme.json'
 
+// Claude Code puts "reply-highlight: " in front, so the first line reads on from it.
 const USAGE = [
-  'Usage:',
-  "  /reply-highlight theme current  show the theme in use, to load into the theme designer",
-  "  /reply-highlight theme {...}    save a theme (from the theme designer's Copy command button)",
-  '  /reply-highlight reset          go back to the built-in look',
+  "change how Claude's replies and your prompts look.",
+  'Pick colours and symbols in the theme designer: https://claude.ai/artifact/E6XtQwk7cZfjXLgEmjyGFf',
+  '',
+  '/reply-highlight theme current',
+  '    Shows every colour and symbol in use now. Paste it into the designer\'s',
+  '    "Load a theme you already have" box to start from your current look.',
+  '',
+  '/reply-highlight theme {...}',
+  '    Saves a theme and redraws the replies on screen with it. The designer\'s',
+  '    Copy command button gives you the whole line. Only what differs from the',
+  `    built-in look is kept, in ~/${THEME_FILE}.`,
+  '',
+  '/reply-highlight reset',
+  '    Forgets your saved theme and goes back to the built-in look.',
 ].join('\n')
 
 export const register: Register = on => {
@@ -24,7 +35,7 @@ export const register: Register = on => {
     try {
       await $.command.register({
         name: 'reply-highlight',
-        description: "Show, save or reset Reply Highlight's theme: the colours and symbols of replies and prompts",
+        description: "See or change the colours and symbols of Claude's replies and your prompts",
         argumentHint: '[theme current|theme {...}|reset]',
         immediate: true,
       })
@@ -77,7 +88,7 @@ export const register: Register = on => {
       try {
         json = JSON.parse(rest.join(' '))
       } catch {
-        return { text: `That theme is not valid JSON. Copy it again from the theme designer.\n\n${USAGE}` }
+        return { text: `That theme is not valid JSON. Copy it again with the theme designer's Copy command button.` }
       }
       const read = readTheme(json)
       const saved = changes(read.theme) ?? {}
