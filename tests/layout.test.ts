@@ -26,8 +26,14 @@ test('long openings and code are items without a label', async () => {
   }
 })
 
-test('code blocks, tables and lines with links are left to markdown', async () => {
-  const kept = ['```\n## not a heading\n- Label: not an item\n```', '| a | b |\n|---|---|', 'See [the docs](https://example.com).']
+test('a plain table becomes its header and rows', async () => {
+  expect(layout('| Kind | Example |\n|---|:-:|\n| **File** | hooks/layout.ts |\n| Pipe | a \\| b |\n| Short |')).toEqual([
+    { kind: 'table', gap: false, head: ['Kind', 'Example'], rows: [['**File**', 'hooks/layout.ts'], ['Pipe', 'a | b'], ['Short', '']] },
+  ])
+})
+
+test('code blocks, tables with links and lines with links are left to markdown', async () => {
+  const kept = ['```\n## not a heading\n- Label: not an item\n```', '| a | b |\n|---|---|\n| [x](https://example.com) | y |', 'See [the docs](https://example.com).']
   for (const text of kept) {
     expect(layout(text).every(b => b.kind === 'markdown')).toBe(true)
   }

@@ -11,11 +11,15 @@ export type Block = { gap: boolean } & (
   | { kind: 'heading'; text: string }
   | { kind: 'para'; text: string }
   | { kind: 'item'; marker: string; label: string; rest: string; width: number }
+  | { kind: 'table'; head: string[]; rows: string[][] }
 )
 
 const FENCE = /^\s*(```|~~~)/
 const HEADING = /^\s{0,3}#{1,6}\s+(.*?)\s*#*\s*$/
 const INDENTED = /^\s+\S/
+const TABLE_ROW = /^\s*\|/
+const TABLE_RULE = /^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?\s*$/
+const LINK = /\[[^\]]*\]\(|<https?:/
 const LIST = /^(\s*(?:[-*+]|\d+[.)])\s+)(.*)$/
 const ENGINE_DRAWS = /^\s*[|><]|^\s*([-*_])(\s*\1){2,}\s*$|\[[^\]]*\]\(|<https?:|~~/
 
@@ -35,7 +39,10 @@ export function layout(text: string): Block[] {
   let blankBefore = false
 
   const flush = () => {
-    if (pending.length > 0) {
+    const table = asTable(pending)
+    if (table) {
+      blocks.push({ kind: 'table', gap: pendingGap, ...table })
+    } else if (pending.length > 0) {
       blocks.push({ kind: 'markdown', gap: pendingGap, text: highlight(pending.join('\n')) })
     }
     pending = []
@@ -88,6 +95,28 @@ export function layout(text: string): Block[] {
   alignLabels(blocks)
 
   return blocks
+}
+
+/**
+ * Lines that are all one plain table, as its header and rows; null for anything
+ * else, or a table with a link in it, which the terminal keeps pressable.
+ */
+function asTable(lines: string[]): { head: string[]; rows: string[][] } | null {
+  if (lines.length < 2 || !lines.every(l => TABLE_ROW.test(l)) || !TABLE_RULE.test(lines[1]) || lines.some(l => LINK.test(l))) {
+    return null
+  }
+  const [head, , ...rows] = lines.map(cells)
+  return { head: head.map(plain), rows: rows.map(r => head.map((_, i) => r[i] ?? '')) }
+}
+
+/** One table line's cells, trimmed; a pipe written as \| stays in its cell. */
+function cells(line: string): string[] {
+  return line
+    .trim()
+    .replace(/^\|/, '')
+    .replace(/(?<!\\)\|$/, '')
+    .split(/(?<!\\)\|/)
+    .map(c => c.trim().replace(/\\\|/g, '|'))
 }
 
 /**

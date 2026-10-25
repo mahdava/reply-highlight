@@ -58,6 +58,61 @@ export const register: Register = on => {
       )
     }
 
+    // A table with dim lines, a green header and the cells drawn as prose.
+    // Columns start as wide as their longest cell and shrink together, wrapping,
+    // when the window is narrower.
+    const table = (head: string[], rows: string[][]) => {
+      const widths = head.map((h, i) =>
+        Math.max(h.length, ...rows.map(r => runs(r[i]).reduce((n, run) => n + run.text.length, 0)), 1),
+      )
+      const dim = (text: string) => (
+        <Box flexShrink={0}>
+          <Text dimColor>{text}</Text>
+        </Box>
+      )
+      const row = (draw: (i: number) => unknown, left: string, middle: string, right: string) => (
+        <Box flexDirection="row">
+          {dim(left)}
+          {widths.flatMap((w, i) => [
+            <Box width={w} flexShrink={1}>
+              {draw(i)}
+            </Box>,
+            dim(i < widths.length - 1 ? middle : right),
+          ])}
+        </Box>
+      )
+      const rule = (left: string, middle: string, right: string) =>
+        row(
+          i => (
+            <Text dimColor wrap="truncate">
+              {'─'.repeat(widths[i])}
+            </Text>
+          ),
+          left + '─',
+          '─' + middle + '─',
+          '─' + right,
+        )
+
+      return (
+        <Box flexDirection="column">
+          {rule('┌', '┬', '┐')}
+          {row(
+            i => (
+              <Text weight="bold" color={LABEL_COLOR}>
+                {head[i]}
+              </Text>
+            ),
+            '│ ',
+            ' │ ',
+            ' │',
+          )}
+          {rule('├', '┼', '┤')}
+          {rows.map(r => row(i => prose(r[i]), '│ ', ' │ ', ' │'))}
+          {rule('└', '┴', '┘')}
+        </Box>
+      )
+    }
+
     return (
       <Box flexDirection="column">
         {blocks.map((b, i) => {
@@ -91,6 +146,9 @@ export const register: Register = on => {
                 </Box>
               </Box>
             )
+          }
+          if (b.kind === 'table') {
+            return <Box marginTop={marginTop}>{table(b.head, b.rows)}</Box>
           }
           if (b.kind === 'para') {
             return <Box marginTop={marginTop}>{prose(b.text)}</Box>
