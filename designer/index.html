@@ -162,6 +162,7 @@ const DEFAULT_THEME = {
   heading: 'claude', subheading: '#d9a27c', label: 'success',
   bullet: { glyph: '✿', color: 'warning' }, number: 'warning',
   chips: {
+    link: { color: '#9cb8ff', background: '#18203a' },
     file: { color: '#8fd6c9', background: '#17312d' },
     hash: { color: '#f5dc6e', background: '#33300f' },
     code: { color: '#f4a6cb', background: '#3a2131' },
@@ -175,6 +176,13 @@ const DEFAULT_THEME = {
     spaceAbove: 2, spaceInside: 1, spaceBelow: 2,
   },
   turn: { glyph: '✿', color: 'warning' },
+  tools: {
+    summary: { glyph: '❀', color: 'merged' },
+    done: { glyph: '●', color: 'claude' },
+    running: { glyph: '◌', color: 'warning' },
+    failed: { glyph: '✕', color: 'error' },
+    name: 'text',
+  },
 };
 
 // Claude Code's own theme colours, read from its dark and light themes.
@@ -194,14 +202,14 @@ const PRESETS = {
   'Built-in': { mode: 'dark', theme: {} },
   'Light terminal': { mode: 'light', theme: {
     subheading: '#b0603a',
-    chips: { file: { color: '#0f6b5e', background: '#dcf1ec' }, hash: { color: '#6e5300', background: '#f8ecbf' }, code: { color: '#9b2c63', background: '#f9e1ec' } },
+    chips: { link: { color: '#2948b8', background: '#e3e9fb' }, file: { color: '#0f6b5e', background: '#dcf1ec' }, hash: { color: '#6e5300', background: '#f8ecbf' }, code: { color: '#9b2c63', background: '#f9e1ec' } },
     table: { line: '#d8cfaa', stripe: '#f3f2ee' },
     code: { line: '#d8cfaa', label: '#8a7633', background: '#f3f2ee' },
     prompt: { row: [{ glyph: '❦', color: '#8dbb94' }, { glyph: '✿', color: '#dba3bf' }] },
   } },
   'High contrast': { mode: 'dark', theme: {
     heading: '#ff9d5c', subheading: '#ffc49e', label: '#6cf08f',
-    chips: { file: { color: '#64f5e1', background: '#003b35' }, hash: { color: '#ffe66d', background: '#4a3c00' }, code: { color: '#ff94cb', background: '#4d0f2f' } },
+    chips: { link: { color: '#a8c4ff', background: '#0f1f4d' }, file: { color: '#64f5e1', background: '#003b35' }, hash: { color: '#ffe66d', background: '#4a3c00' }, code: { color: '#ff94cb', background: '#4d0f2f' } },
     table: { line: '#8a7a3a', header: '#6cf08f', stripe: '#1f1f1f' },
     code: { line: '#8a7a3a', label: '#d6c27a', background: '#1c1c1c' },
     prompt: { row: [{ glyph: '❦', color: '#5fae6f' }, { glyph: '✿', color: '#c06b95' }] },
@@ -209,16 +217,17 @@ const PRESETS = {
   'Quiet': { mode: 'dark', theme: {
     heading: 'text', subheading: 'inactive', label: 'text',
     bullet: { glyph: '•', color: 'inactive' }, number: 'inactive',
-    chips: { file: { color: '#d6d6d6', background: '#232323' }, hash: { color: '#d6d6d6', background: '#232323' }, code: { color: '#d6d6d6', background: '#232323' } },
+    chips: { link: { color: '#d6d6d6', background: '#232323' }, file: { color: '#d6d6d6', background: '#232323' }, hash: { color: '#d6d6d6', background: '#232323' }, code: { color: '#d6d6d6', background: '#232323' } },
     table: { line: '#2a2a2a', header: 'text', stripe: '#121212' },
     quote: { glyph: '│', color: 'subtle' },
     code: { line: '#2a2a2a', label: '#777777', background: '#121212' },
     prompt: { chevron: { glyph: '❯', color: 'inactive' }, row: [{ glyph: '·', color: '#3a3a3a' }], spaceAbove: 1, spaceInside: 0, spaceBelow: 1 },
     turn: { glyph: '·', color: 'inactive' },
+    tools: { summary: { glyph: '·', color: 'inactive' }, done: { glyph: '●', color: 'inactive' } },
   } },
 };
 
-const GLYPHS = ['✿', '❀', '❁', '✾', '❦', '❧', '♣', '⚘', '•', '◆', '◇', '▸', '›', '❯', '★', '·', '▎', '│', '┃'];
+const GLYPHS = ['●', '◌', '○', '✕', '✿', '❀', '❁', '✾', '❦', '❧', '♣', '⚘', '•', '◆', '◇', '▸', '›', '❯', '★', '·', '▎', '│', '┃'];
 
 // The controls, in the order the preview shows the parts.
 const GROUPS = [
@@ -241,6 +250,8 @@ const GROUPS = [
     { path: 'number', label: 'Numbers', type: 'color' },
   ] },
   { id: 'chips', title: 'Words in colour', fields: [
+    { path: 'chips.link.color', label: 'Links: text', type: 'color' },
+    { path: 'chips.link.background', label: 'Links: background', type: 'color' },
     { path: 'chips.file.color', label: 'Files: text', type: 'color' },
     { path: 'chips.file.background', label: 'Files: background', type: 'color' },
     { path: 'chips.hash.color', label: 'Commit hashes: text', type: 'color' },
@@ -261,6 +272,17 @@ const GROUPS = [
     { path: 'code.line', label: 'Line above', type: 'color' },
     { path: 'code.label', label: 'Language name', type: 'color' },
     { path: 'code.background', label: 'Background', type: 'color' },
+  ] },
+  { id: 'tools', title: 'Tool rows', fields: [
+    { path: 'tools.summary.glyph', label: 'Collapsed group symbol', type: 'glyph' },
+    { path: 'tools.summary.color', label: 'Collapsed group (“Ran 2 shell commands”)', type: 'color' },
+    { path: 'tools.done.glyph', label: 'Finished call symbol', type: 'glyph' },
+    { path: 'tools.done.color', label: 'Finished call colour', type: 'color' },
+    { path: 'tools.running.glyph', label: 'Running call symbol', type: 'glyph' },
+    { path: 'tools.running.color', label: 'Running call colour', type: 'color' },
+    { path: 'tools.failed.glyph', label: 'Failed call symbol', type: 'glyph' },
+    { path: 'tools.failed.color', label: 'Failed call colour', type: 'color' },
+    { path: 'tools.name', label: 'Tool name', type: 'color' },
   ] },
   { id: 'turn', title: 'End of a turn', fields: [
     { path: 'turn.glyph', label: 'Symbol', type: 'glyph' },
@@ -329,6 +351,7 @@ function sp(text, o = {}) {
   if (o.bg) style.push(`background:${resolve(o.bg)}`);
   if (o.bold) style.push('font-weight:700');
   if (o.italic) style.push('font-style:italic');
+  if (o.underline) style.push('text-decoration:underline');
   const cls = o.dim ? ' class="dim"' : '';
   const part = o.part ? ` data-part="${o.part}"` : '';
   return `<span${cls}${part}${style.length ? ` style="${style.join(';')}"` : ''}>${esc(text)}</span>`;
@@ -336,15 +359,15 @@ function sp(text, o = {}) {
 // Sample prose: {f:file} {h:hash} {c:code} {b:bold} — the kinds the mod finds by itself.
 function prose(text) {
   const t = state.theme;
-  return text.split(/(\{[fhcb]:[^}]+\})/).map(piece => {
-    const m = /^\{([fhcb]):([^}]+)\}$/.exec(piece);
+  return text.split(/(\{[lfhcb]:[^}]+\})/).map(piece => {
+    const m = /^\{([lfhcb]):([^}]+)\}$/.exec(piece);
     if (!m) return esc(piece);
     if (m[1] === 'b') return sp(m[2], { bold: true });
-    const chip = t.chips[{ f: 'file', h: 'hash', c: 'code' }[m[1]]];
-    return sp(m[2], { fg: chip.color, bg: chip.background, part: 'chips' });
+    const chip = t.chips[{ l: 'link', f: 'file', h: 'hash', c: 'code' }[m[1]]];
+    return sp(m[2], { fg: chip.color, bg: chip.background, underline: m[1] === 'l', part: 'chips' });
   }).join('');
 }
-const plainLen = text => text.replace(/\{[fhcb]:([^}]+)\}/g, '$1').length;
+const plainLen = text => text.replace(/\{[lfhcb]:([^}]+)\}/g, '$1').length;
 const blank = (n = 1) => '<div class="blank"></div>'.repeat(n);
 
 function promptFrame(text) {
@@ -400,6 +423,19 @@ function codeBlock(lang, lines) {
     lines.map(l => `<div class="ln" style="background:${bg}">${colour(l) || ' '}</div>`).join('') + '</div>';
 }
 
+function toolRows() {
+  const t = state.theme.tools;
+  const chip = state.theme.chips.file;
+  const header = (mark, name, subject, isPath) => `<div class="ln" data-part="tools">${sp(mark.glyph + ' ', { fg: mark.color })}${sp(name, { fg: t.name, bold: true })} ` +
+    (isPath ? sp(subject, { fg: chip.color, bg: chip.background }) : sp(subject, { dim: true })) + '</div>';
+  return `<div class="ln" data-part="tools">${sp(t.summary.glyph + ' ', { fg: t.summary.color })}${sp('Read 2 files, ran 1 shell command', { fg: t.summary.color })}</div>` +
+    header(t.done, 'Read', 'hooks/register.tsx', true) +
+    `<div class="ln dim">  ⎿  Read 412 lines</div>` +
+    header(t.failed, 'Bash', 'Run the plugin tests', false) +
+    `<div class="ln dim">  ⎿  Error: 1 test failed</div>` +
+    header(t.running, 'Bash', 'Validate the plugin', false);
+}
+
 function render() {
   const t = state.theme;
   const term = document.getElementById('term');
@@ -409,7 +445,8 @@ function render() {
   const heading = (text, level) => `<div class="ln">${sp(text, { fg: level <= 2 ? t.heading : t.subheading, bold: true, part: 'headings' })}</div>`;
   term.innerHTML =
     promptFrame('can you walk me through the new table drawing?') +
-    `<div class="ln">${prose('Tables are now drawn by the mod. The change is in {f:hooks/register.tsx}, commit {h:43d8964}, inside {c:table()}.')}</div>` +
+    toolRows() + blank() +
+    `<div class="ln">${prose('Tables are now drawn by the mod. The change is in {f:hooks/register.tsx}, commit {h:43d8964}, inside {c:table()}. Designer: {l:https://claude.ai/artifact/E6XtQwk7cZfjXLgEmjyGFf}')}</div>` +
     blank() + heading('Details', 2) + blank() +
     items([
       { label: 'Lines', text: 'a dark yellow that barely stands out from the black.' },
