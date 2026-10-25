@@ -1,6 +1,6 @@
 {
   "name": "reply-highlight",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A Claude Code mod that colours Claude's replies in the terminal: headings, list labels, links, files, commit hashes, code names, tables, quotes, code blocks and tool rows, with flower bullets and a frame around your own prompts. Themeable with /reply-highlight and the theme designer. Changes only the drawing, never the message.",
   "author": {
     "name": "Lucia Nazzaro",

@@ -81,9 +81,10 @@ Copy command and paste the command at the Claude Code prompt:
 /reply-highlight theme {"heading":"#ff9d5c"}
 ```
 
-The theme is drawn at once and kept for every session. `/reply-highlight`
-shows the saved theme, and `/reply-highlight reset` goes back to the built-in
-look. [Themes](docs/GUIDE.md#themes) in the guide has the details.
+The theme is drawn at once and kept for every session.
+`/reply-highlight theme current` shows the theme in use, to load into the
+designer and change further, and `/reply-highlight reset` goes back to the
+built-in look. [Themes](docs/GUIDE.md#themes) in the guide has the details.
 
 ## Resources
 

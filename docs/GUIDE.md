@@ -139,7 +139,8 @@ command gives the line to paste at the Claude Code prompt.
 
 | Command | What it does |
 | --- | --- |
-| `/reply-highlight` | Shows the saved theme |
+| `/reply-highlight` | Lists these commands |
+| `/reply-highlight theme current` | Shows the whole theme in use, built-in values included, to paste into the designer's "Load a theme you already have" |
 | `/reply-highlight theme {...}` | Saves a theme and redraws the transcript with it at once |
 | `/reply-highlight reset` | Goes back to the built-in look |
 
