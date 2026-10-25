@@ -45,7 +45,7 @@ test('a saved theme is read when the session starts, and reset clears it', async
   const current = (await run($, 'theme current')).text
   expect(current).toContain('with your changes')
   expect(current).toContain('"stripe": "#000000"')
-  expect(current).toContain('"heading": "claude"')
+  expect(current).toContain('"heading": "#d77757"')
   expect((await run($, 'reset')).text).toBe('Back to the built-in look.')
   expect(files['/home/t/.claude/reply-highlight/theme.json']).toBe('{}\n')
   expect((await run($, 'theme current')).text).toContain('The built-in look. Paste')

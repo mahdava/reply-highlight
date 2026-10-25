@@ -8,10 +8,10 @@ test('no saved theme is the built-in look', async () => {
 })
 
 test('saved values replace only what they name', async () => {
-  const { theme, problems } = readTheme({ heading: '#ff8800', chips: { hash: { background: 'subtle' } } })
+  const { theme, problems } = readTheme({ heading: '#ff8800', chips: { hash: { background: '#505050' } } })
   expect(problems).toEqual([])
   expect(theme.heading).toBe('#ff8800')
-  expect(theme.chips.hash).toEqual({ color: DEFAULT_THEME.chips.hash.color, background: 'subtle' })
+  expect(theme.chips.hash).toEqual({ color: DEFAULT_THEME.chips.hash.color, background: '#505050' })
   expect(theme.chips.file).toEqual(DEFAULT_THEME.chips.file)
 })
 
@@ -34,7 +34,7 @@ test('values that do not check out keep the built-in look and are named', async 
   expect(theme).toEqual(DEFAULT_THEME)
   expect(problems).toEqual([
     'sparkles: not a part of the theme',
-    expect.stringContaining('heading: #rrggbb or one of'),
+    'heading: a colour as #rrggbb',
     'bullet.glyph: one character, one cell wide (no emoji)',
     'prompt.row: a list of 1 to 8 symbols',
     'prompt.spaceAbove: a whole number from 0 to 4',
@@ -45,4 +45,11 @@ test('changes are only what differs from the built-in look', async () => {
   const { theme } = readTheme({ heading: '#ff8800', table: { stripe: '#000000' } })
   expect(changes(theme)).toEqual({ heading: '#ff8800', table: { stripe: '#000000' } })
   expect(changes(DEFAULT_THEME)).toBe(undefined)
+})
+
+test('a colour is #rrggbb; Claude Code colour names are refused', () => {
+  const read = readTheme({ heading: 'claude', label: '#123abc' })
+  expect(read.theme.heading).toBe(DEFAULT_THEME.heading)
+  expect(read.theme.label).toBe('#123abc')
+  expect(read.problems).toEqual(['heading: a colour as #rrggbb'])
 })

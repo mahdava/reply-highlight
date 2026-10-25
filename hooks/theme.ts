@@ -2,7 +2,7 @@
 // built-in look, and the overrides a person saves with /reply-highlight.
 // The theme designer artifact writes the same shape.
 
-/** A theme key of Claude Code's (follows the person's theme) or `#rrggbb`. */
+/** A colour as `#rrggbb`. */
 export type Color = string
 
 /** A symbol and its colour. */
@@ -26,20 +26,14 @@ export type Theme = {
   tools: { summary: Mark; done: Mark; running: Mark; failed: Mark; name: Color }
 }
 
-/** Theme keys a colour may name instead of `#rrggbb`. */
-export const THEME_KEYS = [
-  'text', 'inactive', 'subtle', 'suggestion', 'remember', 'success', 'error', 'warning', 'merged', 'claude',
-  'permission', 'planMode', 'autoAccept', 'ide', 'diffAdded', 'diffRemoved',
-] as const
-
 /** The look picked with Lucia, tuned for Claude Code's dark theme. */
 export const DEFAULT_THEME: Theme = {
-  heading: 'claude',
+  heading: '#d77757',
   subheading: '#d9a27c',
-  label: 'success',
+  label: '#4eba65',
   // ✿ is one cell wide, unlike a flower emoji, so the text after it stays in line
-  bullet: { glyph: '✿', color: 'warning' },
-  number: 'warning',
+  bullet: { glyph: '✿', color: '#ffc107' },
+  number: '#ffc107',
   chips: {
     // links underlined in a soft blue, the whole address, so they read apart from files
     link: { color: '#9cb8ff', background: '#18203a' },
@@ -47,11 +41,11 @@ export const DEFAULT_THEME: Theme = {
     hash: { color: '#f5dc6e', background: '#33300f' },
     code: { color: '#f4a6cb', background: '#3a2131' },
   },
-  table: { line: '#37311a', header: 'success', stripe: '#131313' },
-  quote: { glyph: '▎', color: 'merged' },
+  table: { line: '#37311a', header: '#4eba65', stripe: '#131313' },
+  quote: { glyph: '▎', color: '#af87ff' },
   code: { line: '#37311a', label: '#8f7f45', background: '#131313' },
   prompt: {
-    chevron: { glyph: '❯', color: 'warning' },
+    chevron: { glyph: '❯', color: '#ffc107' },
     row: [
       { glyph: '❦', color: '#3f6a49' },
       { glyph: '✿', color: '#7a4d63' },
@@ -60,16 +54,16 @@ export const DEFAULT_THEME: Theme = {
     spaceInside: 1,
     spaceBelow: 2,
   },
-  turn: { glyph: '✿', color: 'warning' },
+  turn: { glyph: '✿', color: '#ffc107' },
   // Tool rows: a collapsed group's line ("Ran 2 shell commands") in purple
   // behind a flower; each call's status mark orange when done, so it stands
   // out from the green success text of replies.
   tools: {
-    summary: { glyph: '❀', color: 'merged' },
-    done: { glyph: '●', color: 'claude' },
-    running: { glyph: '◌', color: 'warning' },
-    failed: { glyph: '✕', color: 'error' },
-    name: 'text',
+    summary: { glyph: '❀', color: '#af87ff' },
+    done: { glyph: '●', color: '#d77757' },
+    running: { glyph: '◌', color: '#ffc107' },
+    failed: { glyph: '✕', color: '#ff6b80' },
+    name: '#ffffff',
   },
 }
 
@@ -148,7 +142,7 @@ function merge(base: unknown, saved: unknown, path: string, problems: string[]):
   if (isColor(saved)) {
     return saved
   }
-  problems.push(`${path}: #rrggbb or one of ${THEME_KEYS.join(', ')}`)
+  problems.push(`${path}: a colour as #rrggbb`)
   return base
 }
 
@@ -157,7 +151,7 @@ function join(path: string, key: string): string {
 }
 
 export function isColor(value: unknown): value is Color {
-  return typeof value === 'string' && (HEX.test(value) || (THEME_KEYS as readonly string[]).includes(value))
+  return typeof value === 'string' && HEX.test(value)
 }
 
 // One code point outside the emoji and wide (East Asian) blocks, which most

@@ -213,49 +213,50 @@ footer { color: var(--muted); font-size: 13px; }
 <script>
 // The built-in look, as hooks/theme.ts in the mod has it.
 const DEFAULT_THEME = {
-  heading: 'claude', subheading: '#d9a27c', label: 'success',
-  bullet: { glyph: '✿', color: 'warning' }, number: 'warning',
+  heading: '#d77757', subheading: '#d9a27c', label: '#4eba65',
+  bullet: { glyph: '✿', color: '#ffc107' }, number: '#ffc107',
   chips: {
     link: { color: '#9cb8ff', background: '#18203a' },
     file: { color: '#8fd6c9', background: '#17312d' },
     hash: { color: '#f5dc6e', background: '#33300f' },
     code: { color: '#f4a6cb', background: '#3a2131' },
   },
-  table: { line: '#37311a', header: 'success', stripe: '#131313' },
-  quote: { glyph: '▎', color: 'merged' },
+  table: { line: '#37311a', header: '#4eba65', stripe: '#131313' },
+  quote: { glyph: '▎', color: '#af87ff' },
   code: { line: '#37311a', label: '#8f7f45', background: '#131313' },
   prompt: {
-    chevron: { glyph: '❯', color: 'warning' },
+    chevron: { glyph: '❯', color: '#ffc107' },
     row: [{ glyph: '❦', color: '#3f6a49' }, { glyph: '✿', color: '#7a4d63' }],
     spaceAbove: 2, spaceInside: 1, spaceBelow: 2,
   },
-  turn: { glyph: '✿', color: 'warning' },
+  turn: { glyph: '✿', color: '#ffc107' },
   tools: {
-    summary: { glyph: '❀', color: 'merged' },
-    done: { glyph: '●', color: 'claude' },
-    running: { glyph: '◌', color: 'warning' },
-    failed: { glyph: '✕', color: 'error' },
-    name: 'text',
+    summary: { glyph: '❀', color: '#af87ff' },
+    done: { glyph: '●', color: '#d77757' },
+    running: { glyph: '◌', color: '#ffc107' },
+    failed: { glyph: '✕', color: '#ff6b80' },
+    name: '#ffffff',
   },
 };
 
-// Claude Code's own theme colours, read from its dark and light themes.
+// The terminal around the preview: Claude Code's dark and light backgrounds and text.
 const PALETTES = {
-  dark: { text: '#ffffff', inactive: '#999999', subtle: '#505050', suggestion: '#b1b9f9', remember: '#b1b9f9', success: '#4eba65', error: '#ff6b80', warning: '#ffc107', merged: '#af87ff', claude: '#d77757', permission: '#b1b9f9', planMode: '#48968c', autoAccept: '#af87ff', ide: '#4782c8', diffAdded: '#225c2b', diffRemoved: '#7a2936', bg: '#0c0c0c' },
-  light: { text: '#000000', inactive: '#666666', subtle: '#afafaf', suggestion: '#5769f7', remember: '#5769f7', success: '#2c7a39', error: '#ab2b3f', warning: '#966c1e', merged: '#8700ff', claude: '#d77757', permission: '#5769f7', planMode: '#006666', autoAccept: '#8700ff', ide: '#4782c8', diffAdded: '#69db7c', diffRemoved: '#ffa8b4', bg: '#ffffff' },
+  dark: { bg: '#0c0c0c', text: '#ffffff', inactive: '#999999' },
+  light: { bg: '#ffffff', text: '#000000', inactive: '#666666' },
 };
-// Colours that follow the person's Claude Code theme, as hooks/theme.ts names them.
-const THEME_KEYS = ['text', 'inactive', 'subtle', 'suggestion', 'remember', 'success', 'error', 'warning', 'merged', 'claude',
-  'permission', 'planMode', 'autoAccept', 'ide', 'diffAdded', 'diffRemoved'];
 
 const PRESETS = {
   'Built-in': { mode: 'dark', theme: {} },
   'Light terminal': { mode: 'light', theme: {
-    subheading: '#b0603a',
+    heading: '#b5502f', subheading: '#b0603a', label: '#2c7a39',
+    bullet: { color: '#966c1e' }, number: '#966c1e',
     chips: { link: { color: '#2948b8', background: '#e3e9fb' }, file: { color: '#0f6b5e', background: '#dcf1ec' }, hash: { color: '#6e5300', background: '#f8ecbf' }, code: { color: '#9b2c63', background: '#f9e1ec' } },
-    table: { line: '#d8cfaa', stripe: '#f3f2ee' },
+    table: { line: '#d8cfaa', header: '#2c7a39', stripe: '#f3f2ee' },
+    quote: { color: '#8700ff' },
     code: { line: '#d8cfaa', label: '#8a7633', background: '#f3f2ee' },
-    prompt: { row: [{ glyph: '❦', color: '#8dbb94' }, { glyph: '✿', color: '#dba3bf' }] },
+    prompt: { chevron: { color: '#966c1e' }, row: [{ glyph: '❦', color: '#8dbb94' }, { glyph: '✿', color: '#dba3bf' }] },
+    turn: { color: '#966c1e' },
+    tools: { summary: { color: '#8700ff' }, done: { color: '#c05a2c' }, running: { color: '#966c1e' }, failed: { color: '#ab2b3f' }, name: '#000000' },
   } },
   'High contrast': { mode: 'dark', theme: {
     heading: '#ff9d5c', subheading: '#ffc49e', label: '#6cf08f',
@@ -265,15 +266,15 @@ const PRESETS = {
     prompt: { row: [{ glyph: '❦', color: '#5fae6f' }, { glyph: '✿', color: '#c06b95' }] },
   } },
   'Quiet': { mode: 'dark', theme: {
-    heading: 'text', subheading: 'inactive', label: 'text',
-    bullet: { glyph: '•', color: 'inactive' }, number: 'inactive',
+    heading: '#ffffff', subheading: '#999999', label: '#ffffff',
+    bullet: { glyph: '•', color: '#999999' }, number: '#999999',
     chips: { link: { color: '#d6d6d6', background: '#232323' }, file: { color: '#d6d6d6', background: '#232323' }, hash: { color: '#d6d6d6', background: '#232323' }, code: { color: '#d6d6d6', background: '#232323' } },
-    table: { line: '#2a2a2a', header: 'text', stripe: '#121212' },
-    quote: { glyph: '│', color: 'subtle' },
+    table: { line: '#2a2a2a', header: '#ffffff', stripe: '#121212' },
+    quote: { glyph: '│', color: '#505050' },
     code: { line: '#2a2a2a', label: '#777777', background: '#121212' },
-    prompt: { chevron: { glyph: '❯', color: 'inactive' }, row: [{ glyph: '·', color: '#3a3a3a' }], spaceAbove: 1, spaceInside: 0, spaceBelow: 1 },
-    turn: { glyph: '·', color: 'inactive' },
-    tools: { summary: { glyph: '·', color: 'inactive' }, done: { glyph: '●', color: 'inactive' } },
+    prompt: { chevron: { glyph: '❯', color: '#999999' }, row: [{ glyph: '·', color: '#3a3a3a' }], spaceAbove: 1, spaceInside: 0, spaceBelow: 1 },
+    turn: { glyph: '·', color: '#999999' },
+    tools: { summary: { glyph: '·', color: '#999999' }, done: { glyph: '●', color: '#999999' } },
   } },
 };
 
@@ -343,7 +344,7 @@ const GROUPS = [
 // ── Theme logic, the same rules as the mod's hooks/theme.ts ─────────────
 const clone = v => JSON.parse(JSON.stringify(v));
 const HEX = /^#[0-9a-fA-F]{6}$/;
-const isColor = v => typeof v === 'string' && (HEX.test(v) || THEME_KEYS.includes(v));
+const isColor = v => typeof v === 'string' && HEX.test(v);
 function isGlyph(v) {
   if (typeof v !== 'string' || [...v].length !== 1) return false;
   const cp = v.codePointAt(0);
@@ -370,7 +371,7 @@ function merge(base, saved, path, problems) {
   }
   if (field.startsWith('glyph')) { if (isGlyph(saved)) return saved; problems.push(`${path}: one character, one cell wide (no emoji)`); return base; }
   if (isColor(saved)) return saved;
-  problems.push(`${path}: #rrggbb or a theme colour name`); return base;
+  problems.push(`${path}: a colour as #rrggbb`); return base;
 }
 const readTheme = saved => { const problems = []; return { theme: merge(DEFAULT_THEME, saved, '', problems), problems }; };
 function changes(theme, base = DEFAULT_THEME) {
@@ -390,7 +391,6 @@ try {
 } catch (_) { /* a private window: start from the built-in look */ }
 function remember() { try { localStorage.setItem('reply-highlight-designer', JSON.stringify({ preset: state.preset, mode: state.mode, theme: changes(state.theme) || {} })); } catch (_) {} }
 
-const resolve = c => (THEME_KEYS.includes(c) ? PALETTES[state.mode][c] : c);
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 // ── The preview ──────────────────────────────────────────────────────────
@@ -401,8 +401,8 @@ const spotOf = path => path.replace(/\.(glyph|color|background)$/, '');
 // A span of text in the terminal's colours.
 function sp(text, o = {}) {
   const style = [];
-  if (o.fg) style.push(`color:${resolve(o.fg)}`);
-  if (o.bg) style.push(`background:${resolve(o.bg)}`);
+  if (o.fg) style.push(`color:${(o.fg)}`);
+  if (o.bg) style.push(`background:${(o.bg)}`);
   if (o.bold) style.push('font-weight:700');
   if (o.underline) style.push('text-decoration:underline');
   const cls = o.dim ? ' class="dim"' : '';
@@ -453,15 +453,15 @@ function table(head, rows) {
   const t = state.theme;
   const widths = head.map((h, i) => Math.max(h.length, ...rows.map(r => plainLen(r[i]))));
   const cols = widths.map(w => `<col style="width:calc(${w + 2}ch + 1px)">`).join('');
-  const cells = (texts, draw, bg) => '<tr>' + texts.map(x => `<td${bg ? ` style="--stripe:${resolve(bg)}" data-path="table.stripe"` : ''}>${draw(x)}</td>`).join('') + '</tr>';
-  return `<table class="tbl" data-path="table.line" style="--t-line:${resolve(t.table.line)}"><colgroup>${cols}</colgroup>` +
+  const cells = (texts, draw, bg) => '<tr>' + texts.map(x => `<td${bg ? ` style="--stripe:${(bg)}" data-path="table.stripe"` : ''}>${draw(x)}</td>`).join('') + '</tr>';
+  return `<table class="tbl" data-path="table.line" style="--t-line:${(t.table.line)}"><colgroup>${cols}</colgroup>` +
     cells(head, h => sp(h, { fg: t.table.header, bold: true, path: 'table.header' })) +
     rows.map((r, n) => cells(r, prose, n % 2 === 0 ? t.table.stripe : null)).join('') + '</table>';
 }
 
 function codeBlock(lang, lines) {
   const t = state.theme;
-  const bg = resolve(t.code.background);
+  const bg = (t.code.background);
   const kw = state.mode === 'dark' ? '#c792ea' : '#7c3aed';
   const str = state.mode === 'dark' ? '#c3e88d' : '#3d7a1e';
   const com = state.mode === 'dark' ? '#7f8c98' : '#6b7280';
@@ -589,8 +589,8 @@ function colorField(f) {
   const undo = el.querySelector('.undo');
   const show = () => {
     const value = get(state.theme, f.path);
-    picker.value = resolve(value);
-    hex.value = resolve(value);
+    picker.value = (value);
+    hex.value = (value);
     undo.hidden = value === builtIn;
   };
   const put = v => { set(state.theme, f.path, v); show(); render(); };
