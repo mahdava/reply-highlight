@@ -1,0 +1,624 @@
+<title>Reply Highlight Themes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* Layout: a terminal you can click into on the left, the theme's controls on the right; stacked on a phone. */
+:root {
+  --bg: #f6f5f1;
+  --panel: #ffffff;
+  --fg: #1f1d1a;
+  --muted: #6b6559;
+  --line: #e2ddd2;
+  --accent: #9a6a00;
+  --accent-soft: #fbf0d0;
+  --danger: #b3261e;
+  --focus: #9a6a00;
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", "Cascadia Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #151412; --panel: #1d1c19; --fg: #ece8df; --muted: #a39d90; --line: #33302a;
+    --accent: #ffc107; --accent-soft: #3a3010; --danger: #ff8a80; --focus: #ffc107; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #151412; --panel: #1d1c19; --fg: #ece8df; --muted: #a39d90; --line: #33302a;
+  --accent: #ffc107; --accent-soft: #3a3010; --danger: #ff8a80; --focus: #ffc107; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font: 15px/1.5 var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 40px;
+}
+.wrap { max-width: 1320px; margin: 0 auto; display: grid; gap: 20px; }
+header { display: grid; gap: 6px; }
+h1 { font: 700 clamp(26px, 4vw, 36px)/1.1 var(--display); margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+h1 .mark { color: var(--accent); }
+.lede { margin: 0; color: var(--muted); max-width: 70ch; }
+.layout { display: grid; gap: 20px; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); align-items: start; }
+@media (max-width: 900px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+.stage { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); display: grid; gap: 12px; min-width: 0; }
+@media (max-width: 900px) { .stage { position: static; } }
+
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.bar .grow { flex: 1 1 auto; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--panel); }
+.seg button { border: 0; background: transparent; color: var(--fg); font: 500 13px var(--body); padding: 6px 12px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--fg); box-shadow: inset 0 -2px 0 var(--accent); }
+.label-sm { font-size: 12px; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+
+/* The terminal: its own world, coloured only by the theme being designed. */
+.term {
+  --t-bg: #0c0c0c; --t-fg: #ffffff; --t-dim: #999999;
+  background: var(--t-bg); color: var(--t-fg); border-radius: 10px; border: 1px solid var(--line);
+  font: 13px/1.45 var(--mono); padding: 14px 16px 18px; overflow-x: auto; min-width: 0;
+}
+.term .ln { white-space: pre-wrap; min-height: 1.45em; }
+.term .blank { height: 1.45em; }
+.term .row { white-space: pre; overflow: hidden; height: 1.45em; }
+.term .item { display: grid; grid-template-columns: max-content max-content minmax(0, 1fr); }
+.term .item > span { white-space: pre-wrap; }
+.term .tbl .ln { white-space: pre; }
+.term .dim { color: var(--t-dim); }
+.term .chip { border-radius: 0; }
+.term [data-part] { cursor: pointer; border-radius: 3px; outline: 1px dashed transparent; outline-offset: 1px; transition: outline-color 120ms; }
+.term [data-part]:hover { outline-color: color-mix(in srgb, var(--t-fg) 35%, transparent); }
+@media (prefers-reduced-motion: reduce) { .term [data-part] { transition: none; } }
+.hint { font-size: 13px; color: var(--muted); margin: 0; }
+
+.out { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 8px; }
+.out pre { margin: 0; font: 12px/1.5 var(--mono); white-space: pre-wrap; word-break: break-all; background: var(--bg); border-radius: 6px; padding: 10px; max-height: 9em; overflow: auto; }
+.btn { font: 600 13px var(--body); border-radius: 8px; padding: 8px 14px; cursor: pointer; border: 1px solid var(--line); background: var(--panel); color: var(--fg); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #1a1405; }
+.btn:focus-visible, .seg button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .sug:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.status { font-size: 13px; color: var(--muted); min-height: 1.4em; }
+
+.controls { display: grid; gap: 12px; min-width: 0; }
+details.group { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
+details.group > summary { list-style: none; cursor: pointer; padding: 12px 14px; display: flex; align-items: center; gap: 10px; font: 600 15px var(--body); }
+details.group > summary::-webkit-details-marker { display: none; }
+details.group > summary .swatches { margin-left: auto; display: inline-flex; gap: 3px; }
+details.group > summary .swatches i { width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--line); display: inline-block; }
+details.group > summary::after { content: "▸"; color: var(--muted); transition: transform 120ms; }
+details.group[open] > summary::after { transform: rotate(90deg); }
+details.group.flash { box-shadow: 0 0 0 2px var(--accent); }
+.fields { display: grid; gap: 12px; padding: 0 14px 14px; }
+.field { display: grid; gap: 4px; }
+.field > label, .field > .flabel { font-size: 13px; font-weight: 500; }
+.color-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.color-row input[type=color] { width: 38px; height: 30px; padding: 0; border: 1px solid var(--line); border-radius: 6px; background: none; cursor: pointer; }
+select, input[type=text], textarea { font: 13px var(--body); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
+select { max-width: 100%; }
+.color-row code { font: 12px var(--mono); color: var(--muted); }
+.glyph-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.glyph-row input { width: 3.2em; text-align: center; font: 16px var(--mono); }
+.sug { font: 15px var(--mono); width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--fg); cursor: pointer; padding: 0; }
+.sug[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.err { color: var(--danger); font-size: 12px; }
+.range-row { display: flex; gap: 10px; align-items: center; }
+.range-row input { flex: 1 1 auto; accent-color: var(--accent); }
+.range-row output { font: 13px var(--mono); width: 2ch; text-align: right; }
+.symbols { display: grid; gap: 8px; }
+.symbol { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 8px; border: 1px dashed var(--line); border-radius: 8px; }
+.symbol .remove { margin-left: auto; }
+.import textarea { width: 100%; min-height: 4.5em; font: 12px var(--mono); resize: vertical; }
+footer { color: var(--muted); font-size: 13px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1><span class="mark">✿</span> Reply Highlight Themes</h1>
+    <p class="lede">Design how Claude's replies and your prompts look in the terminal with the Reply Highlight mod. Click any part of the preview to jump to its colours, then copy the command and paste it into Claude Code.</p>
+  </header>
+
+  <div class="layout">
+    <section class="stage" aria-label="Preview and result">
+      <div class="bar">
+        <span class="label-sm">Start from</span>
+        <div class="seg" id="presets" role="group" aria-label="Presets"></div>
+        <span class="grow"></span>
+        <span class="label-sm">Terminal</span>
+        <div class="seg" id="modes" role="group" aria-label="Terminal background">
+          <button type="button" data-mode="dark" aria-pressed="true">Dark</button>
+          <button type="button" data-mode="light" aria-pressed="false">Light</button>
+        </div>
+      </div>
+      <div class="term" id="term" aria-label="Preview of a Claude Code session with this theme"></div>
+      <p class="hint">Named colours such as “Claude orange” follow your Claude Code theme; the preview shows them as the dark or light theme draws them.</p>
+      <div class="out">
+        <div class="bar"><span class="label-sm">Paste into Claude Code</span><span class="grow"></span>
+          <button type="button" class="btn" id="reset">Back to preset</button>
+          <button type="button" class="btn primary" id="copy">Copy command</button>
+        </div>
+        <pre id="cmd" tabindex="0" aria-label="Command to paste"></pre>
+        <div class="status" id="status" role="status"></div>
+      </div>
+    </section>
+
+    <section class="controls" id="controls" aria-label="Theme controls"></section>
+  </div>
+
+  <details class="group import">
+    <summary>Load a theme you already have</summary>
+    <div class="fields">
+      <label for="import-text" class="flabel">Paste a theme, or the output of <code>/reply-highlight</code></label>
+      <textarea id="import-text" spellcheck="false" placeholder='{"heading":"#ff8800"}'></textarea>
+      <div class="bar"><button type="button" class="btn" id="import">Load</button><span class="status" id="import-status" role="status"></span></div>
+    </div>
+  </details>
+
+  <footer>Needs the Reply Highlight mod for Claude Code. The command saves the theme in <code>~/.claude/reply-highlight/theme.json</code>; <code>/reply-highlight reset</code> goes back to the built-in look.</footer>
+</div>
+
+<script>
+// The built-in look, as hooks/theme.ts in the mod has it.
+const DEFAULT_THEME = {
+  heading: 'claude', subheading: '#d9a27c', label: 'success',
+  bullet: { glyph: '✿', color: 'warning' }, number: 'warning',
+  chips: {
+    file: { color: '#8fd6c9', background: '#17312d' },
+    hash: { color: '#f5dc6e', background: '#33300f' },
+    code: { color: '#f4a6cb', background: '#3a2131' },
+  },
+  table: { line: '#37311a', header: 'success', stripe: '#131313' },
+  quote: { glyph: '▎', color: 'merged' },
+  code: { line: '#37311a', label: '#8f7f45', background: '#131313' },
+  prompt: {
+    chevron: { glyph: '❯', color: 'warning' },
+    row: [{ glyph: '❦', color: '#3f6a49' }, { glyph: '✿', color: '#7a4d63' }],
+    spaceAbove: 2, spaceInside: 1, spaceBelow: 2,
+  },
+  turn: { glyph: '✿', color: 'warning' },
+};
+
+// Claude Code's own theme colours, read from its dark and light themes.
+const PALETTES = {
+  dark: { text: '#ffffff', inactive: '#999999', subtle: '#505050', suggestion: '#b1b9f9', remember: '#b1b9f9', success: '#4eba65', error: '#ff6b80', warning: '#ffc107', merged: '#af87ff', claude: '#d77757', permission: '#b1b9f9', planMode: '#48968c', autoAccept: '#af87ff', ide: '#4782c8', diffAdded: '#225c2b', diffRemoved: '#7a2936', bg: '#0c0c0c' },
+  light: { text: '#000000', inactive: '#666666', subtle: '#afafaf', suggestion: '#5769f7', remember: '#5769f7', success: '#2c7a39', error: '#ab2b3f', warning: '#966c1e', merged: '#8700ff', claude: '#d77757', permission: '#5769f7', planMode: '#006666', autoAccept: '#8700ff', ide: '#4782c8', diffAdded: '#69db7c', diffRemoved: '#ffa8b4', bg: '#ffffff' },
+};
+const KEY_NAMES = {
+  claude: 'Claude orange', success: 'Green', warning: 'Yellow (auto mode)', merged: 'Purple', suggestion: 'Light blue',
+  error: 'Red', planMode: 'Teal (plan mode)', ide: 'Blue', text: 'Text', inactive: 'Grey', subtle: 'Dark grey',
+  permission: 'Periwinkle', remember: 'Periwinkle (remember)', autoAccept: 'Purple (accept edits)',
+  diffAdded: 'Diff green', diffRemoved: 'Diff red',
+};
+const THEME_KEYS = Object.keys(KEY_NAMES);
+
+const PRESETS = {
+  'Built-in': { mode: 'dark', theme: {} },
+  'Light terminal': { mode: 'light', theme: {
+    subheading: '#b0603a',
+    chips: { file: { color: '#0f6b5e', background: '#dcf1ec' }, hash: { color: '#6e5300', background: '#f8ecbf' }, code: { color: '#9b2c63', background: '#f9e1ec' } },
+    table: { line: '#d8cfaa', stripe: '#f3f2ee' },
+    code: { line: '#d8cfaa', label: '#8a7633', background: '#f3f2ee' },
+    prompt: { row: [{ glyph: '❦', color: '#8dbb94' }, { glyph: '✿', color: '#dba3bf' }] },
+  } },
+  'High contrast': { mode: 'dark', theme: {
+    heading: '#ff9d5c', subheading: '#ffc49e', label: '#6cf08f',
+    chips: { file: { color: '#64f5e1', background: '#003b35' }, hash: { color: '#ffe66d', background: '#4a3c00' }, code: { color: '#ff94cb', background: '#4d0f2f' } },
+    table: { line: '#8a7a3a', header: '#6cf08f', stripe: '#1f1f1f' },
+    code: { line: '#8a7a3a', label: '#d6c27a', background: '#1c1c1c' },
+    prompt: { row: [{ glyph: '❦', color: '#5fae6f' }, { glyph: '✿', color: '#c06b95' }] },
+  } },
+  'Quiet': { mode: 'dark', theme: {
+    heading: 'text', subheading: 'inactive', label: 'text',
+    bullet: { glyph: '•', color: 'inactive' }, number: 'inactive',
+    chips: { file: { color: '#d6d6d6', background: '#232323' }, hash: { color: '#d6d6d6', background: '#232323' }, code: { color: '#d6d6d6', background: '#232323' } },
+    table: { line: '#2a2a2a', header: 'text', stripe: '#121212' },
+    quote: { glyph: '│', color: 'subtle' },
+    code: { line: '#2a2a2a', label: '#777777', background: '#121212' },
+    prompt: { chevron: { glyph: '❯', color: 'inactive' }, row: [{ glyph: '·', color: '#3a3a3a' }], spaceAbove: 1, spaceInside: 0, spaceBelow: 1 },
+    turn: { glyph: '·', color: 'inactive' },
+  } },
+};
+
+const GLYPHS = ['✿', '❀', '❁', '✾', '❦', '❧', '♣', '⚘', '•', '◆', '◇', '▸', '›', '❯', '★', '·', '▎', '│', '┃'];
+
+// The controls, in the order the preview shows the parts.
+const GROUPS = [
+  { id: 'prompt', title: 'Your prompts', fields: [
+    { path: 'prompt.chevron.glyph', label: 'Prompt symbol', type: 'glyph' },
+    { path: 'prompt.chevron.color', label: 'Prompt symbol colour', type: 'color' },
+    { path: 'prompt.row', label: 'Rows above and below', type: 'row' },
+    { path: 'prompt.spaceAbove', label: 'Empty lines above', type: 'space' },
+    { path: 'prompt.spaceInside', label: 'Empty lines inside the rows', type: 'space' },
+    { path: 'prompt.spaceBelow', label: 'Empty lines below', type: 'space' },
+  ] },
+  { id: 'headings', title: 'Headings', fields: [
+    { path: 'heading', label: '# and ## headings', type: 'color' },
+    { path: 'subheading', label: '### and smaller', type: 'color' },
+  ] },
+  { id: 'lists', title: 'Lists', fields: [
+    { path: 'label', label: 'Labels', type: 'color' },
+    { path: 'bullet.glyph', label: 'Bullet symbol', type: 'glyph' },
+    { path: 'bullet.color', label: 'Bullet colour', type: 'color' },
+    { path: 'number', label: 'Numbers', type: 'color' },
+  ] },
+  { id: 'chips', title: 'Words in colour', fields: [
+    { path: 'chips.file.color', label: 'Files: text', type: 'color' },
+    { path: 'chips.file.background', label: 'Files: background', type: 'color' },
+    { path: 'chips.hash.color', label: 'Commit hashes: text', type: 'color' },
+    { path: 'chips.hash.background', label: 'Commit hashes: background', type: 'color' },
+    { path: 'chips.code.color', label: 'Code names: text', type: 'color' },
+    { path: 'chips.code.background', label: 'Code names: background', type: 'color' },
+  ] },
+  { id: 'table', title: 'Tables', fields: [
+    { path: 'table.line', label: 'Lines', type: 'color' },
+    { path: 'table.header', label: 'Header', type: 'color' },
+    { path: 'table.stripe', label: 'Stripe on every other row', type: 'color' },
+  ] },
+  { id: 'quote', title: 'Quotes', fields: [
+    { path: 'quote.glyph', label: 'Bar symbol', type: 'glyph' },
+    { path: 'quote.color', label: 'Bar colour', type: 'color' },
+  ] },
+  { id: 'code', title: 'Code blocks', fields: [
+    { path: 'code.line', label: 'Line above', type: 'color' },
+    { path: 'code.label', label: 'Language name', type: 'color' },
+    { path: 'code.background', label: 'Background', type: 'color' },
+  ] },
+  { id: 'turn', title: 'End of a turn', fields: [
+    { path: 'turn.glyph', label: 'Symbol', type: 'glyph' },
+    { path: 'turn.color', label: 'Colour', type: 'color' },
+  ] },
+];
+
+// ── Theme logic, the same rules as the mod's hooks/theme.ts ─────────────
+const clone = v => JSON.parse(JSON.stringify(v));
+const HEX = /^#[0-9a-fA-F]{6}$/;
+const isColor = v => typeof v === 'string' && (HEX.test(v) || THEME_KEYS.includes(v));
+function isGlyph(v) {
+  if (typeof v !== 'string' || [...v].length !== 1) return false;
+  const cp = v.codePointAt(0);
+  const wide = (cp >= 0x1100 && cp <= 0x115f) || (cp >= 0x2e80 && cp <= 0xa4cf) || (cp >= 0xac00 && cp <= 0xd7a3) ||
+    (cp >= 0xf900 && cp <= 0xfaff) || (cp >= 0xfe30 && cp <= 0xfe4f) || (cp >= 0xff00 && cp <= 0xff60) ||
+    (cp >= 0xffe0 && cp <= 0xffe6) || cp >= 0x1f000;
+  return cp >= 0x20 && !(cp >= 0x7f && cp < 0xa0) && !wide;
+}
+function merge(base, saved, path, problems) {
+  if (saved === undefined) return clone(base);
+  if (Array.isArray(base)) {
+    if (!Array.isArray(saved) || saved.length === 0 || saved.length > 8) { problems.push(`${path}: a list of 1 to 8 symbols`); return clone(base); }
+    return saved.map((item, i) => merge(base[i % base.length], item, `${path}[${i}]`, problems));
+  }
+  if (typeof base === 'object') {
+    if (typeof saved !== 'object' || saved === null || Array.isArray(saved)) { problems.push(`${path || 'theme'}: an object`); return clone(base); }
+    for (const k of Object.keys(saved)) if (!(k in base)) problems.push(`${path ? path + '.' + k : k}: not a part of the theme`);
+    return Object.fromEntries(Object.entries(base).map(([k, v]) => [k, merge(v, saved[k], path ? path + '.' + k : k, problems)]));
+  }
+  const field = path.split('.').pop();
+  if (typeof base === 'number') {
+    if (Number.isInteger(saved) && saved >= 0 && saved <= 4) return saved;
+    problems.push(`${path}: a whole number from 0 to 4`); return base;
+  }
+  if (field.startsWith('glyph')) { if (isGlyph(saved)) return saved; problems.push(`${path}: one character, one cell wide (no emoji)`); return base; }
+  if (isColor(saved)) return saved;
+  problems.push(`${path}: #rrggbb or a theme colour name`); return base;
+}
+const readTheme = saved => { const problems = []; return { theme: merge(DEFAULT_THEME, saved, '', problems), problems }; };
+function changes(theme, base = DEFAULT_THEME) {
+  if (Array.isArray(theme) || typeof theme !== 'object' || theme === null) return JSON.stringify(theme) === JSON.stringify(base) ? undefined : theme;
+  const out = {};
+  for (const [k, v] of Object.entries(theme)) { const c = changes(v, base[k]); if (c !== undefined) out[k] = c; }
+  return Object.keys(out).length ? out : undefined;
+}
+const get = (obj, path) => path.split('.').reduce((o, k) => o[k], obj);
+function set(obj, path, value) { const keys = path.split('.'); const last = keys.pop(); keys.reduce((o, k) => o[k], obj)[last] = value; }
+
+// ── State ────────────────────────────────────────────────────────────────
+let state = { preset: 'Built-in', mode: 'dark', theme: clone(DEFAULT_THEME) };
+try {
+  const saved = JSON.parse(localStorage.getItem('reply-highlight-designer') || 'null');
+  if (saved && saved.theme) state = { preset: saved.preset || 'Built-in', mode: saved.mode === 'light' ? 'light' : 'dark', theme: readTheme(saved.theme).theme };
+} catch (_) { /* a private window: start from the built-in look */ }
+function remember() { try { localStorage.setItem('reply-highlight-designer', JSON.stringify({ preset: state.preset, mode: state.mode, theme: changes(state.theme) || {} })); } catch (_) {} }
+
+const resolve = c => (THEME_KEYS.includes(c) ? PALETTES[state.mode][c] : c);
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+// ── The preview ──────────────────────────────────────────────────────────
+// A span of text in the terminal's colours; `part` makes it a link to its controls.
+function sp(text, o = {}) {
+  const style = [];
+  if (o.fg) style.push(`color:${resolve(o.fg)}`);
+  if (o.bg) style.push(`background:${resolve(o.bg)}`);
+  if (o.bold) style.push('font-weight:700');
+  if (o.italic) style.push('font-style:italic');
+  const cls = o.dim ? ' class="dim"' : '';
+  const part = o.part ? ` data-part="${o.part}"` : '';
+  return `<span${cls}${part}${style.length ? ` style="${style.join(';')}"` : ''}>${esc(text)}</span>`;
+}
+// Sample prose: {f:file} {h:hash} {c:code} {b:bold} — the kinds the mod finds by itself.
+function prose(text) {
+  const t = state.theme;
+  return text.split(/(\{[fhcb]:[^}]+\})/).map(piece => {
+    const m = /^\{([fhcb]):([^}]+)\}$/.exec(piece);
+    if (!m) return esc(piece);
+    if (m[1] === 'b') return sp(m[2], { bold: true });
+    const chip = t.chips[{ f: 'file', h: 'hash', c: 'code' }[m[1]]];
+    return sp(m[2], { fg: chip.color, bg: chip.background, part: 'chips' });
+  }).join('');
+}
+const plainLen = text => text.replace(/\{[fhcb]:([^}]+)\}/g, '$1').length;
+const blank = (n = 1) => '<div class="blank"></div>'.repeat(n);
+
+function promptFrame(text) {
+  const p = state.theme.prompt;
+  const row = Array.from({ length: 240 }, (_, i) => { const m = p.row[i % p.row.length]; return sp(m.glyph + ' ', { fg: m.color }); }).join('');
+  const rowLine = `<div class="row" data-part="prompt">${row}</div>`;
+  return blank(p.spaceAbove) + rowLine + blank(p.spaceInside) +
+    `<div class="item" data-part="prompt"><span>${sp(p.chevron.glyph + ' ', { fg: p.chevron.color })}</span><span></span><span>${esc(text)}</span></div>` +
+    blank(p.spaceInside) + rowLine + blank(p.spaceBelow);
+}
+
+function items(list) {
+  const t = state.theme;
+  const labelled = list.filter(i => i.label);
+  const width = Math.max(0, ...labelled.map(i => i.label.length + 2).filter(w => w <= 26));
+  return list.map((it, n) => {
+    const marker = it.number
+      ? sp(`${it.number}. `, { fg: t.number, part: 'lists' })
+      : sp(t.bullet.glyph, { fg: t.bullet.color, part: 'lists' }) + ' ';
+    const label = it.label ? sp((it.label + ':').padEnd(Math.max(width, it.label.length + 2)), { fg: t.label, bold: true, part: 'lists' }) : '';
+    return (n > 0 ? blank() : '') + `<div class="item"><span>${marker}</span><span>${label}</span><span>${prose(it.text)}</span></div>`;
+  }).join('');
+}
+
+function table(head, rows) {
+  const t = state.theme;
+  const widths = head.map((h, i) => Math.max(h.length, ...rows.map(r => plainLen(r[i]))));
+  const ln = s => sp(s, { fg: t.table.line, part: 'table' });
+  const rule = (l, m, r) => `<div class="ln">${ln(l + '─' + widths.map(w => '─'.repeat(w)).join('─' + m + '─') + '─' + r)}</div>`;
+  const cells = (texts, draw, bg) => {
+    const parts = texts.map((x, i) => draw(x) + ' '.repeat(widths[i] - plainLen(x)));
+    const style = bg ? ` style="background:${resolve(bg)}"` : '';
+    return `<div class="ln"${style} data-part="table">${ln('│ ')}${parts.join(ln(' │ '))}${ln(' │')}</div>`;
+  };
+  return '<div class="tbl">' + rule('┌', '┬', '┐') +
+    cells(head, h => sp(h, { fg: t.table.header, bold: true, part: 'table' })) +
+    rule('├', '┼', '┤') +
+    rows.map((r, n) => (n > 0 ? rule('├', '┼', '┤') : '') + cells(r, prose, n % 2 === 0 ? t.table.stripe : null)).join('') +
+    rule('└', '┴', '┘') + '</div>';
+}
+
+function codeBlock(lang, lines) {
+  const t = state.theme;
+  const bg = resolve(t.code.background);
+  const kw = state.mode === 'dark' ? '#c792ea' : '#7c3aed';
+  const str = state.mode === 'dark' ? '#c3e88d' : '#3d7a1e';
+  const com = state.mode === 'dark' ? '#7f8c98' : '#6b7280';
+  const colour = l => esc(l)
+    .replace(/(\/\/.*)$/, `<span style="color:${com}">$1</span>`)
+    .replace(/('[^']*')/g, `<span style="color:${str}">$1</span>`)
+    .replace(/\b(const|let|return|export|function)\b/g, `<span style="color:${kw}">$1</span>`);
+  return `<div data-part="code"><div class="ln">${sp('── ', { fg: t.code.line })}${sp(lang, { fg: t.code.label })}${sp(' ' + '─'.repeat(20), { fg: t.code.line })}</div>` +
+    lines.map(l => `<div class="ln" style="background:${bg}">${colour(l) || ' '}</div>`).join('') + '</div>';
+}
+
+function render() {
+  const t = state.theme;
+  const term = document.getElementById('term');
+  term.style.setProperty('--t-bg', PALETTES[state.mode].bg);
+  term.style.setProperty('--t-fg', PALETTES[state.mode].text);
+  term.style.setProperty('--t-dim', PALETTES[state.mode].inactive);
+  const heading = (text, level) => `<div class="ln">${sp(text, { fg: level <= 2 ? t.heading : t.subheading, bold: true, part: 'headings' })}</div>`;
+  term.innerHTML =
+    promptFrame('can you walk me through the new table drawing?') +
+    `<div class="ln">${prose('Tables are now drawn by the mod. The change is in {f:hooks/register.tsx}, commit {h:43d8964}, inside {c:table()}.')}</div>` +
+    blank() + heading('Details', 2) + blank() +
+    items([
+      { label: 'Lines', text: 'a dark yellow that barely stands out from the black.' },
+      { label: 'Stripe', text: 'every other row sits on a faint background.' },
+      { label: 'Where to look', text: '{c:table()} in {f:hooks/register.tsx}, then {c:rows.flatMap}.' },
+    ]) +
+    blank() + heading('Reading order', 3) + blank() +
+    items([
+      { number: 1, text: '{h:e60d4af} draws tables with lines and a header' },
+      { number: 2, text: '{h:83b86dd} adds a line between every row' },
+    ]) +
+    blank() +
+    items([{ text: 'Links in a table stay clickable.' }, { text: 'The stored reply never changes.' }]) +
+    blank() +
+    table(['Kind', 'Example', 'Colour'], [['File', '{f:hooks/layout.ts}', 'teal'], ['Commit', '{h:0569c37}', 'yellow'], ['Code name', '{c:layout()}', 'pink'], ['Status', 'done', 'plain']]) +
+    blank() +
+    `<div class="ln" data-part="quote">${sp(t.quote.glyph + ' ', { fg: t.quote.color })}Tables were the last part of a reply in one flat colour.</div>` +
+    blank() +
+    codeBlock('ts', ["// every other body row", "const stripe = n % 2 === 0 ? theme.table.stripe : undefined"]) +
+    blank() +
+    `<div class="ln" data-part="turn">${sp(t.turn.glyph, { fg: t.turn.color })}<span class="dim"> Cooked for 1m 42s</span></div>`;
+  renderCommand();
+  renderSwatches();
+  remember();
+}
+
+function renderCommand() {
+  const diff = changes(state.theme);
+  document.getElementById('cmd').textContent = diff ? '/reply-highlight theme ' + JSON.stringify(diff) : '/reply-highlight reset';
+}
+
+// ── The controls ─────────────────────────────────────────────────────────
+const controls = document.getElementById('controls');
+let uid = 0;
+
+function colorField(f) {
+  const id = 'f' + (++uid);
+  const value = get(state.theme, f.path);
+  const isKey = THEME_KEYS.includes(value);
+  const options = ['<option value="">Own colour</option>'].concat(THEME_KEYS.map(k => `<option value="${k}"${value === k ? ' selected' : ''}>${KEY_NAMES[k]}</option>`));
+  const el = document.createElement('div');
+  el.className = 'field';
+  el.innerHTML = `<label for="${id}">${f.label}</label><div class="color-row">
+    <input type="color" id="${id}" value="${resolve(value)}" aria-label="${f.label}: pick a colour">
+    <select id="${id}-k" aria-label="${f.label}: theme colour">${options.join('')}</select>
+    <code>${isKey ? '' : value}</code></div>`;
+  const picker = el.querySelector('input'), select = el.querySelector('select'), code = el.querySelector('code');
+  picker.addEventListener('input', () => { set(state.theme, f.path, picker.value); select.value = ''; code.textContent = picker.value; render(); });
+  select.addEventListener('change', () => {
+    const v = select.value || picker.value;
+    set(state.theme, f.path, v);
+    picker.value = resolve(v);
+    code.textContent = select.value ? '' : v;
+    render();
+  });
+  return el;
+}
+
+function glyphField(f, getValue, setValue) {
+  const id = 'f' + (++uid);
+  const el = document.createElement('div');
+  el.className = 'field';
+  el.innerHTML = `<label for="${id}">${f.label}</label><div class="glyph-row"><input type="text" id="${id}" maxlength="2" autocomplete="off" spellcheck="false"></div><div class="err" aria-live="polite"></div>`;
+  const input = el.querySelector('input'), row = el.querySelector('.glyph-row'), err = el.querySelector('.err');
+  input.value = getValue();
+  const mark = () => row.querySelectorAll('.sug').forEach(b => b.setAttribute('aria-pressed', String(b.textContent === getValue())));
+  for (const g of GLYPHS) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'sug'; b.textContent = g; b.setAttribute('aria-label', `Use ${g}`);
+    b.addEventListener('click', () => { setValue(g); input.value = g; err.textContent = ''; mark(); render(); });
+    row.appendChild(b);
+  }
+  mark();
+  input.addEventListener('input', () => {
+    if (isGlyph(input.value)) { setValue(input.value); err.textContent = ''; mark(); render(); }
+    else err.textContent = input.value ? 'One character that takes one cell. Emoji take two cells and would push rows out of line.' : '';
+  });
+  return el;
+}
+
+function spaceField(f) {
+  const id = 'f' + (++uid);
+  const el = document.createElement('div');
+  el.className = 'field';
+  el.innerHTML = `<label for="${id}">${f.label}</label><div class="range-row"><input type="range" id="${id}" min="0" max="4" step="1" value="${get(state.theme, f.path)}"><output for="${id}">${get(state.theme, f.path)}</output></div>`;
+  const input = el.querySelector('input'), out = el.querySelector('output');
+  input.addEventListener('input', () => { set(state.theme, f.path, Number(input.value)); out.textContent = input.value; render(); });
+  return el;
+}
+
+function rowField(f) {
+  const el = document.createElement('div');
+  el.className = 'field';
+  el.innerHTML = `<span class="flabel">${f.label}</span><div class="symbols"></div><div><button type="button" class="btn add">Add a symbol</button></div>`;
+  const list = el.querySelector('.symbols'), add = el.querySelector('.add');
+  const draw = () => {
+    list.innerHTML = '';
+    state.theme.prompt.row.forEach((m, i) => {
+      const box = document.createElement('div');
+      box.className = 'symbol';
+      box.appendChild(glyphField({ label: `Symbol ${i + 1}` }, () => state.theme.prompt.row[i].glyph, v => { state.theme.prompt.row[i].glyph = v; }));
+      box.appendChild(colorField({ path: `prompt.row.${i}.color`, label: `Symbol ${i + 1} colour` }));
+      if (state.theme.prompt.row.length > 1) {
+        const rm = document.createElement('button');
+        rm.type = 'button'; rm.className = 'btn remove'; rm.textContent = 'Remove';
+        rm.addEventListener('click', () => { state.theme.prompt.row.splice(i, 1); draw(); render(); });
+        box.appendChild(rm);
+      }
+      list.appendChild(box);
+    });
+    add.disabled = state.theme.prompt.row.length >= 8;
+  };
+  add.addEventListener('click', () => { const last = state.theme.prompt.row.at(-1); state.theme.prompt.row.push(clone(last)); draw(); render(); });
+  draw();
+  return el;
+}
+
+function buildControls() {
+  controls.innerHTML = '';
+  for (const g of GROUPS) {
+    const d = document.createElement('details');
+    d.className = 'group'; d.id = 'group-' + g.id;
+    if (g.id === 'prompt' || g.id === 'chips') d.open = true;
+    d.innerHTML = `<summary>${g.title}<span class="swatches" aria-hidden="true"></span></summary><div class="fields"></div>`;
+    const fields = d.querySelector('.fields');
+    for (const f of g.fields) {
+      if (f.type === 'color') fields.appendChild(colorField(f));
+      else if (f.type === 'glyph') fields.appendChild(glyphField(f, () => get(state.theme, f.path), v => set(state.theme, f.path, v)));
+      else if (f.type === 'space') fields.appendChild(spaceField(f));
+      else if (f.type === 'row') fields.appendChild(rowField(f));
+    }
+    controls.appendChild(d);
+  }
+}
+
+function renderSwatches() {
+  for (const g of GROUPS) {
+    const box = document.querySelector(`#group-${g.id} .swatches`);
+    if (!box) continue;
+    const colours = g.fields.filter(f => f.type === 'color').map(f => resolve(get(state.theme, f.path)));
+    if (g.id === 'prompt') state.theme.prompt.row.forEach(m => colours.push(resolve(m.color)));
+    box.innerHTML = colours.slice(0, 6).map(c => `<i style="background:${c}"></i>`).join('');
+  }
+}
+
+function buildPresets() {
+  const box = document.getElementById('presets');
+  box.innerHTML = '';
+  for (const name of Object.keys(PRESETS)) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = name; b.setAttribute('aria-pressed', String(state.preset === name));
+    b.addEventListener('click', () => applyPreset(name));
+    box.appendChild(b);
+  }
+}
+function applyPreset(name) {
+  state.preset = name;
+  state.mode = PRESETS[name].mode;
+  state.theme = readTheme(PRESETS[name].theme).theme;
+  refresh();
+  status(`Started from “${name}”.`);
+}
+function syncModes() {
+  document.querySelectorAll('#modes button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === state.mode)));
+}
+function refresh() { buildPresets(); syncModes(); buildControls(); render(); }
+
+document.querySelectorAll('#modes button').forEach(b => b.addEventListener('click', () => { state.mode = b.dataset.mode; syncModes(); buildControls(); render(); }));
+
+// Clicking a part of the preview opens its controls.
+document.getElementById('term').addEventListener('click', e => {
+  const part = e.target.closest('[data-part]');
+  if (!part) return;
+  const group = document.getElementById('group-' + part.dataset.part);
+  if (!group) return;
+  group.open = true;
+  group.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+  group.classList.add('flash');
+  setTimeout(() => group.classList.remove('flash'), 1200);
+  group.querySelector('input, select, button')?.focus({ preventScroll: true });
+});
+
+function status(text) { document.getElementById('status').textContent = text; }
+
+document.getElementById('copy').addEventListener('click', () => {
+  const text = document.getElementById('cmd').textContent;
+  const fallback = () => {
+    const range = document.createRange(); range.selectNodeContents(document.getElementById('cmd'));
+    const sel = getSelection(); sel.removeAllRanges(); sel.addRange(range);
+    status('Copying is blocked here: the command is selected, press Ctrl+C or ⌘C.');
+  };
+  try {
+    navigator.clipboard.writeText(text).then(() => status('Copied. Paste it at the Claude Code prompt and press Enter.'), fallback);
+  } catch (_) { fallback(); }
+});
+document.getElementById('reset').addEventListener('click', () => applyPreset(state.preset));
+
+document.getElementById('import').addEventListener('click', () => {
+  const out = document.getElementById('import-status');
+  let text = document.getElementById('import-text').value.trim();
+  text = text.replace(/^\/reply-highlight\s+theme\s+/, '');
+  const start = text.indexOf('{'), end = text.lastIndexOf('}');
+  let json;
+  try { json = JSON.parse(text.slice(start, end + 1)); } catch (_) { out.textContent = 'That is not a theme: paste the JSON or the whole /reply-highlight theme command.'; return; }
+  const read = readTheme(json);
+  state.theme = read.theme;
+  refresh();
+  out.textContent = read.problems.length ? `Loaded. Kept the built-in look for: ${read.problems.join('; ')}` : 'Loaded.';
+});
+
+refresh();
+</script>
