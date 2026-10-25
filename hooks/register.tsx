@@ -9,6 +9,11 @@ const HEADING_COLOR = 'claude'
 // Purple, so labels stand apart from the marked words.
 const LABEL_COLOR = 'merged'
 
+// Bullets drawn as a small flower; numbered items keep their numbers. One
+// cell wide, unlike a flower emoji, so the text after it stays in line.
+const BULLET = '✿'
+const BULLET_COLOR = '#f4a6cb'
+
 // Each kind of marked word as a small chip. A mod is not told the theme, so
 // these are raw colours picked for the dark theme.
 const CHIPS: Record<Kind, { color: string; backgroundColor: string }> = {
@@ -38,6 +43,20 @@ export const register: Register = on => {
       </Text>
     )
 
+    const bullet = (marker: string) => {
+      const [, indent, sign, space] = /^(\s*)([-*+])(\s+)$/.exec(marker) ?? []
+      if (sign === undefined) {
+        return <Text>{marker}</Text>
+      }
+      return (
+        <Text>
+          {indent}
+          <Text color={BULLET_COLOR}>{BULLET}</Text>
+          {space}
+        </Text>
+      )
+    }
+
     return (
       <Box flexDirection="column">
         {blocks.map((b, i) => {
@@ -57,7 +76,7 @@ export const register: Register = on => {
             return (
               <Box flexDirection="row" marginTop={marginTop}>
                 <Box flexShrink={0}>
-                  <Text>{b.marker}</Text>
+                  {bullet(b.marker)}
                 </Box>
                 {b.label !== '' && (
                   <Box width={b.width} flexShrink={0}>
