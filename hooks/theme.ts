@@ -17,12 +17,13 @@ export type Theme = {
   label: Color
   bullet: Mark
   number: Color
-  chips: { file: Chip; hash: Chip; code: Chip }
+  chips: { link: Chip; file: Chip; hash: Chip; code: Chip }
   table: { line: Color; header: Color; stripe: Color }
   quote: Mark
   code: { line: Color; label: Color; background: Color }
   prompt: { chevron: Mark; row: Mark[]; spaceAbove: number; spaceInside: number; spaceBelow: number }
   turn: Mark
+  tools: { summary: Mark; done: Mark; running: Mark; failed: Mark; name: Color }
 }
 
 /** Theme keys a colour may name instead of `#rrggbb`. */
@@ -40,6 +41,8 @@ export const DEFAULT_THEME: Theme = {
   bullet: { glyph: '✿', color: 'warning' },
   number: 'warning',
   chips: {
+    // links underlined in a soft blue, the whole address, so they read apart from files
+    link: { color: '#9cb8ff', background: '#18203a' },
     file: { color: '#8fd6c9', background: '#17312d' },
     hash: { color: '#f5dc6e', background: '#33300f' },
     code: { color: '#f4a6cb', background: '#3a2131' },
@@ -58,6 +61,16 @@ export const DEFAULT_THEME: Theme = {
     spaceBelow: 2,
   },
   turn: { glyph: '✿', color: 'warning' },
+  // Tool rows: a collapsed group's line ("Ran 2 shell commands") in purple
+  // behind a flower; each call's status mark orange when done, so it stands
+  // out from the green success text of replies.
+  tools: {
+    summary: { glyph: '❀', color: 'merged' },
+    done: { glyph: '●', color: 'claude' },
+    running: { glyph: '◌', color: 'warning' },
+    failed: { glyph: '✕', color: 'error' },
+    name: 'text',
+  },
 }
 
 const HEX = /^#[0-9a-fA-F]{6}$/

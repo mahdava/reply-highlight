@@ -3,6 +3,7 @@ import type { Register } from 'claude-code'
 import { runs } from './inline'
 import { layout } from './layout'
 import { changes, DEFAULT_THEME, readTheme, type Theme } from './theme'
+import { callHeader, failures, groupSummary } from './tools'
 
 // The look in use: the built-in theme until a saved one is read.
 let theme: Theme = DEFAULT_THEME
@@ -105,7 +106,7 @@ export const register: Register = on => {
     const prose = (text: string) => (
       <Text>
         {runs(text).map(r => (
-          <Text weight={r.bold ? 'bold' : undefined} italic={r.italic} {...(r.kind ? { color: theme.chips[r.kind].color, backgroundColor: theme.chips[r.kind].background } : {})}>
+          <Text weight={r.bold ? 'bold' : undefined} italic={r.italic} underline={r.kind === 'link' || undefined} {...(r.kind ? { color: theme.chips[r.kind].color, backgroundColor: theme.chips[r.kind].background } : {})}>
             {r.text}
           </Text>
         ))}
@@ -300,6 +301,57 @@ export const register: Register = on => {
         </Box>
         {flowers}
       </Box>
+    )
+  })
+
+  // A collapsed group of tool calls as one line: a purple flower and what the
+  // calls did. An expanded group keeps the engine's rows (drawn below).
+  on('ui.render', { component: 'ToolGroup' }, ($, e, next) => {
+    if (e.props.isExpanded || e.props.calls.length === 0) {
+      return next(e)
+    }
+    const { Text } = $.ui.resolve(e)
+    const { summary, running, failed } = theme.tools
+    const isRunning = e.props.calls.some(c => c.isRunning)
+    const mark = isRunning ? running : summary
+    const failedCount = failures(e.props.calls)
+    return (
+      <Text>
+        <Text color={mark.color}>{mark.glyph + ' '}</Text>
+        <Text color={summary.color}>{groupSummary(e.props.calls) + (isRunning ? '…' : '')}</Text>
+        {failedCount > 0 && <Text color={failed.color}>{` · ${failedCount} failed`}</Text>}
+      </Text>
+    )
+  })
+
+  // A tool call's header: its status mark, its name and what it was about.
+  // The result under it stays the engine's own row; an interrupted call
+  // keeps the engine's drawing, which says so.
+  on('ui.render', { component: 'ToolUse' }, ($, e, next) => {
+    if (e.props.isInterrupted) {
+      return next(e)
+    }
+    const { Text } = $.ui.resolve(e)
+    const { done, running, failed, name } = theme.tools
+    const mark = e.props.isRunning ? running : e.props.isErrored ? failed : done
+    const header = callHeader(e.props.tool, e.props.input)
+    const chip = theme.chips.file
+    return (
+      <Text>
+        <Text color={mark.color}>{mark.glyph + ' '}</Text>
+        <Text weight="bold" color={name}>
+          {header.name}
+        </Text>
+        {header.subject !== '' && <Text dimColor>{' '}</Text>}
+        {header.subject !== '' &&
+          (header.isPath ? (
+            <Text color={chip.color} backgroundColor={chip.background}>
+              {header.subject}
+            </Text>
+          ) : (
+            <Text dimColor>{header.subject}</Text>
+          ))}
+      </Text>
     )
   })
 

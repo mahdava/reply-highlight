@@ -16,6 +16,8 @@ const EXTENSIONS = 'ts|tsx|js|jsx|mjs|cjs|json|md|go|sql|py|sh|yaml|yml|toml|css
 // What gets marked, as one alternation so two kinds never overlap.
 const MARKED = new RegExp(
   [
+    // a web address, whole, without the punctuation that ends a sentence
+    String.raw`https?:\/\/[^\s<>()\[\]]*[^\s<>()\[\].,;:!?'"]`,
     // a path: one or more folders, optionally :line or :line-line
     String.raw`(?:~|\.{1,2})?\/?(?:[\w@.-]+\/)+[\w.@-]*[\w@-](?::\d+(?:-\d+)?)?`,
     // a file name with a known extension
@@ -38,7 +40,7 @@ const HASH = /^(?=[0-9a-f]*\d)(?=[0-9a-f]*[a-f])[0-9a-f]{7,40}$/
 const FILE = new RegExp(String.raw`^[\w.-]+\.(?:${EXTENSIONS})(?::\d+(?:-\d+)?)?$`)
 
 /** What a marked word is, so each kind can get its own colour. */
-export type Kind = 'file' | 'hash' | 'code'
+export type Kind = 'link' | 'file' | 'hash' | 'code'
 
 /** A stretch of prose: plain, or a marked word with its kind. */
 export type Piece = { text: string; kind?: Kind }
@@ -99,8 +101,11 @@ export function marks(prose: string): Piece[] {
   return pieces
 }
 
-/** A commit hash, a file or path, or else a name from code. */
+/** A web address, a commit hash, a file or path, or else a name from code. */
 export function kindOf(word: string): Kind {
+  if (/^https?:\/\//.test(word)) {
+    return 'link'
+  }
   if (HASH.test(word)) {
     return 'hash'
   }

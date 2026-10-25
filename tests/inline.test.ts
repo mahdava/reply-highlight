@@ -26,3 +26,11 @@ test('inline code, bold and italic keep their meaning', async () => {
     { text: 'README.md', kind: 'file' },
   ])
 })
+
+test('a web address is one link, without the full stop after it', async () => {
+  expect(runs('Open https://claude.ai/artifact/E6XtQwk7cZfjXLgEmjyGFf. Then copy.')).toEqual([
+    { text: 'Open ' },
+    { text: 'https://claude.ai/artifact/E6XtQwk7cZfjXLgEmjyGFf', kind: 'link' },
+    { text: '. Then copy.' },
+  ])
+})
