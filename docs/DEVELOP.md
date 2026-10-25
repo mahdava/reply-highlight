@@ -26,14 +26,15 @@ and symbols of the theme in use.
 | `tests/command.test.ts` | `/reply-highlight` against a home folder in memory |
 | `tests/tools.test.ts` | Tool row words |
 | `tests/drawing.test.tsx` | Claude Code accepts the drawing of a reply and of tool rows |
-| `designer/index.html` | The theme designer, published as an artifact from this file. Its copy of the built-in look and the value rules must match `hooks/theme.ts`. |
+| `designer/index.html` | The theme designer, one stand-alone page. Its copy of the built-in look and the value rules must match `hooks/theme.ts`. |
+| `netlify.toml` | Serves the `designer` folder on Netlify as it is, with no build step |
 | `LICENSE` | The MIT License, for the code and documentation |
 | `.claude-plugin/plugin.json` | The manifest |
 | `.claude-plugin/marketplace.json` | Makes the repository its own marketplace |
 | `docs/` | The guide, install, troubleshooting and this page, linked from the README |
 
 To change the built-in look, edit `DEFAULT_THEME` in `hooks/theme.ts` and
-the same object in `designer/index.html`, then publish the designer again. A
+the same object in `designer/index.html`. Netlify publishes the designer again with each push to `main`. A
 theme key (`'claude'`, `'success'`, `'warning'`, `'merged'`) follows the
 person's theme; a `#rrggbb` colour does not. The designer's preview uses
 Claude Code's dark and light theme colours for the keys, read from Claude

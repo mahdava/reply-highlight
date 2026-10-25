@@ -1,0 +1,10 @@
+# The theme designer is one static page: no build, just the designer folder.
+[build]
+  publish = "designer"
+  command = ""
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
