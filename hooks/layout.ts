@@ -8,14 +8,14 @@ import { highlight } from './highlight'
 // An item's `label` is '' when it opens without one.
 export type Block = { gap: boolean } & (
   | { kind: 'markdown'; text: string }
-  | { kind: 'heading'; text: string }
+  | { kind: 'heading'; level: number; text: string }
   | { kind: 'para'; text: string }
   | { kind: 'item'; marker: string; label: string; rest: string; width: number }
   | { kind: 'table'; head: string[]; rows: string[][] }
 )
 
 const FENCE = /^\s*(```|~~~)/
-const HEADING = /^\s{0,3}#{1,6}\s+(.*?)\s*#*\s*$/
+const HEADING = /^\s{0,3}(#{1,6})\s+(.*?)\s*#*\s*$/
 const INDENTED = /^\s+\S/
 const TABLE_ROW = /^\s*\|/
 const TABLE_RULE = /^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?\s*$/
@@ -73,7 +73,7 @@ export function layout(text: string): Block[] {
     const list = LIST.exec(line)
 
     if (heading) {
-      blocks.push({ kind: 'heading', gap: blocks.length > 0, text: plain(heading[1]) })
+      blocks.push({ kind: 'heading', gap: blocks.length > 0, level: heading[1].length, text: plain(heading[2]) })
     } else if (list) {
       const item = ITEM.exec(line)
       const label = item?.[2] ?? item?.[3]

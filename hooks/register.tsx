@@ -6,10 +6,12 @@ import { layout } from './layout'
 
 // Theme keys, so the colours follow the person's light or dark theme.
 const HEADING_COLOR = 'claude'
+// ### and smaller: a softer orange, so the levels read apart.
+const SUBHEADING_COLOR = '#d9a27c'
 // The theme's green, picked from four trial greens for being easy to read.
 const LABEL_COLOR = 'success'
 
-// Bullets drawn as a small flower; numbered items keep their numbers. One
+// Bullets drawn as a small flower, and numbers in the same yellow. One
 // cell wide, unlike a flower emoji, so the text after it stays in line.
 const BULLET = '✿'
 // the yellow of "auto mode on" in the prompt footer
@@ -50,14 +52,14 @@ export const register: Register = on => {
     )
 
     const bullet = (marker: string) => {
-      const [, indent, sign, space] = /^(\s*)([-*+])(\s+)$/.exec(marker) ?? []
+      const [, indent, sign, space] = /^(\s*)([-*+]|\d+[.)])(\s+)$/.exec(marker) ?? []
       if (sign === undefined) {
         return <Text>{marker}</Text>
       }
       return (
         <Text>
           {indent}
-          <Text color={BULLET_COLOR}>{BULLET}</Text>
+          <Text color={BULLET_COLOR}>{/\d/.test(sign) ? sign : BULLET}</Text>
           {space}
         </Text>
       )
@@ -130,7 +132,7 @@ export const register: Register = on => {
           if (b.kind === 'heading') {
             return (
               <Box marginTop={marginTop}>
-                <Text weight="bold" color={HEADING_COLOR}>
+                <Text weight="bold" color={b.level <= 2 ? HEADING_COLOR : SUBHEADING_COLOR}>
                   {b.text}
                 </Text>
               </Box>

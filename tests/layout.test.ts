@@ -6,7 +6,7 @@ test('headings, paragraphs and list items become their own blocks, in order', as
   const reply = ['Short version.', '', '## Details', '', '- **Other sessions:** not yet, see a782c71.', '- Plain item.'].join('\n')
   expect(layout(reply)).toEqual([
     { kind: 'para', gap: false, text: 'Short version.' },
-    { kind: 'heading', gap: true, text: 'Details' },
+    { kind: 'heading', gap: true, level: 2, text: 'Details' },
     { kind: 'item', gap: true, marker: '- ', label: 'Other sessions', rest: 'not yet, see a782c71.', width: 16 },
     { kind: 'item', gap: false, marker: '- ', label: '', rest: 'Plain item.', width: 0 },
   ])
