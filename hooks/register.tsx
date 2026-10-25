@@ -23,7 +23,7 @@ const USAGE = [
   '',
   '/reply-highlight theme {...}',
   '    Saves a theme and redraws the replies on screen with it. The designer\'s',
-  '    Copy command button gives you the whole line. Only what differs from the',
+  '    copy button gives you the whole line. Only what differs from the',
   `    built-in look is kept, in ~/${THEME_FILE}.`,
   '',
   '/reply-highlight reset',
@@ -88,7 +88,7 @@ export const register: Register = on => {
       try {
         json = JSON.parse(rest.join(' '))
       } catch {
-        return { text: `That theme is not valid JSON. Copy it again with the theme designer's Copy command button.` }
+        return { text: `That theme is not valid JSON. Copy it again with the theme designer's copy button.` }
       }
       const read = readTheme(json)
       const saved = changes(read.theme) ?? {}

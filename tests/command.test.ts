@@ -1,5 +1,7 @@
 import { expect, mock, test } from 'claude-code/testing'
 
+import { DEFAULT_THEME } from '../hooks/theme'
+
 // A home folder in memory: what the plugin reads and writes there.
 function world(on: any, saved?: string) {
   const files: Record<string, string> = saved === undefined ? {} : { '/home/t/.claude/reply-highlight/theme.json': saved }
@@ -57,4 +59,12 @@ test('text that is not JSON saves nothing', async ($, on) => {
   await $.session.start({ cwd: '/repo', surface: 'terminal', isInteractive: true })
   expect((await run($, 'theme {heading')).text).toContain('not valid JSON')
   expect(files).toEqual({})
+})
+
+test('a whole theme, as the designer copies it, saves only what differs', async ($, on) => {
+  const { files } = world(on)
+  await $.session.start({ cwd: '/repo', surface: 'terminal', isInteractive: true })
+  const whole = { ...DEFAULT_THEME, heading: '#ff8800' }
+  expect((await run($, `theme ${JSON.stringify(whole)}`)).text).toContain('Theme saved')
+  expect(JSON.parse(files['/home/t/.claude/reply-highlight/theme.json'])).toEqual({ heading: '#ff8800' })
 })

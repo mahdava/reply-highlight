@@ -74,8 +74,10 @@ to the terminal and why.
 ## Make it your own
 
 Open the [theme designer](https://claude.ai/artifact/E6XtQwk7cZfjXLgEmjyGFf),
-pick colours and symbols against a live preview of a session, then press
-Copy command and paste the command at the Claude Code prompt:
+pick colours and symbols against a live preview of a session, then copy the
+command under the preview and paste it at the Claude Code prompt. The
+command holds every setting, so it can also be changed by hand before
+pasting; a command can name only some settings too:
 
 ```
 /reply-highlight theme {"heading":"#ff9d5c"}
