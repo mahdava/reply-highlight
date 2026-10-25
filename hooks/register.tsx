@@ -12,7 +12,8 @@ const LABEL_COLOR = 'merged'
 // Bullets drawn as a small flower; numbered items keep their numbers. One
 // cell wide, unlike a flower emoji, so the text after it stays in line.
 const BULLET = '✿'
-const BULLET_COLOR = '#f4a6cb'
+// the yellow of "auto mode on" in the prompt footer
+const BULLET_COLOR = 'warning'
 
 // Each kind of marked word as a small chip. A mod is not told the theme, so
 // these are raw colours picked for the dark theme.
