@@ -238,8 +238,10 @@ export const register: Register = on => {
         </Text>
       </Box>
     )
+    // Two empty rows above the frame set each exchange apart from the one
+    // before; two below lead into the reply.
     return (
-      <Box flexDirection="column" marginTop={1}>
+      <Box flexDirection="column" marginTop={2} marginBottom={2}>
         {flowers}
         <Box flexDirection="row" marginY={1}>
           <Box flexShrink={0}>
