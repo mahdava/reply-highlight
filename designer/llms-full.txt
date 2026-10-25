@@ -1,0 +1,116 @@
+# Reply Highlight Themes
+
+> A theme designer for Reply Highlight, a mod for Claude Code that colours Claude's replies and the person's own prompts in the terminal. The page previews each part of a session, lets a person pick its colours and symbols, and gives one `/reply-highlight theme {...}` command to paste into Claude Code.
+
+## What Reply Highlight is
+
+Claude Code draws each reply from its markdown, in one or two colours. Reply Highlight is a Claude Code mod (a plugin that runs inside Claude Code) that redraws the reply on screen with more colour, so long replies are easier to read through:
+
+- Headings are bold and orange; smaller headings a softer orange.
+- List bullets become small flowers; numbers are coloured; labels before a colon (`- **Label:** text`) are green and lined up in one column; list items get an empty row between them.
+- Links, file names, commit hashes and names from code each get their own colour on a background of the same tone, like small chips. Links are underlined in full.
+- Tables get faint lines between every cell and row, a coloured header and a stripe on every other row.
+- Quotes get a coloured bar; code blocks a line naming the language and a dark background.
+- The person's own prompts sit between two full-width rows of leaves and flowers, so each exchange is easy to find when scrolling back.
+- Tool rows (the lines that show what Claude read or ran) get coloured status marks, and the line that ends a turn gets a flower.
+
+It changes only what appears on the screen. The text Claude wrote, what is stored in the session and what the model reads stay exactly as they were, so it costs no tokens. It gives the model no tool and makes no network requests. The only file it reads and writes is the saved theme, `~/.claude/reply-highlight/theme.json`. It needs Claude Code 2.1.302 or later, and draws in the terminal only (not the desktop app, VS Code or the mobile app).
+
+## What this page does
+
+The page is the easiest way to make a theme. It runs entirely in the browser: it sends nothing anywhere, and keeps only the person's last choices, in their own browser's storage.
+
+1. Pick a starting point under "Start from": Built-in, Light terminal, High contrast or Quiet. "Terminal" switches the preview between a dark and a light terminal background.
+2. Go through the steps, one per part of a session: Your prompts, Tool rows, Headings, Lists, Words in colour, Tables, Quotes, Code blocks, End of a turn. Each step has its own small preview, with the settings under it. Pointing at a setting, or moving to it with the keyboard, outlines in the previews what it changes. Clicking a piece of any preview moves to its setting.
+3. The whole session is previewed on the side. Under it is the command to paste into Claude Code, with a button to copy it. "Back to preset" undoes the changes made on the page.
+4. To start from the theme already in use, press "Load your theme", run `/reply-highlight theme current` in Claude Code, and paste what it prints.
+5. To remove a theme, run `/reply-highlight reset` in Claude Code.
+
+## Commands in Claude Code
+
+- `/reply-highlight` lists the commands.
+- `/reply-highlight theme current` prints the whole theme in use, built-in values included.
+- `/reply-highlight theme {...}` saves a theme and redraws the replies on screen with it at once. Only the values that differ from the built-in look are saved, so later changes to the built-in look still reach the person.
+- `/reply-highlight reset` goes back to the built-in look.
+
+## The rules a theme follows
+
+- A colour is written `#rrggbb`.
+- A symbol is one character that takes one cell in a terminal. Emoji take two cells and would push rows out of line, so they are refused.
+- The empty lines around a prompt go from 0 to 4; the rows around a prompt hold 1 to 8 symbols, repeated across the width of the terminal.
+- A value that does not follow these rules keeps the built-in look, and the command's answer names it. A theme may name only some values; the rest keep the built-in look.
+
+## Every value, with its built-in setting
+
+The built-in look is tuned for Claude Code's dark theme. A mod is not told which theme is in use, so on a light theme the Light terminal preset is the better start.
+
+- `heading`: `#` and `##` headings
+- `subheading`: `###` and smaller headings
+- `label`: list labels before a colon
+- `bullet.glyph`, `bullet.color`: the bullet symbol and its colour
+- `number`: list numbers
+- `chips.link`, `chips.file`, `chips.hash`, `chips.code`: links, file names and paths, commit hashes, names from code; each has `color` (the text) and `background`
+- `table.line`, `table.header`, `table.stripe`: table lines, header text, the stripe on every other row
+- `quote.glyph`, `quote.color`: the bar in front of quoted lines
+- `code.line`, `code.label`, `code.background`: the line above a code block, the language name on it, the background behind the code
+- `prompt.chevron`: the symbol before the person's prompt (`glyph`, `color`)
+- `prompt.row`: the symbols repeated in the rows above and below a prompt, each with `glyph` and `color`
+- `prompt.spaceAbove`, `prompt.spaceInside`, `prompt.spaceBelow`: empty lines above the top row, between the rows and the prompt, below the bottom row
+- `turn`: the symbol in front of the line that ends a turn (`glyph`, `color`)
+- `tools.summary`: a collapsed group of tool calls ("Read 2 files, ran 1 shell command"), its symbol and colour
+- `tools.done`, `tools.running`, `tools.failed`: the mark in front of each tool call when it finished, while it runs, when it failed
+- `tools.name`: the tool's name (Read, Bash)
+
+The built-in theme, as `/reply-highlight theme current` prints it:
+
+```json
+{
+  "heading": "#d77757",
+  "subheading": "#d9a27c",
+  "label": "#4eba65",
+  "bullet": { "glyph": "✿", "color": "#ffc107" },
+  "number": "#ffc107",
+  "chips": {
+    "link": { "color": "#9cb8ff", "background": "#18203a" },
+    "file": { "color": "#8fd6c9", "background": "#17312d" },
+    "hash": { "color": "#f5dc6e", "background": "#33300f" },
+    "code": { "color": "#f4a6cb", "background": "#3a2131" }
+  },
+  "table": { "line": "#37311a", "header": "#4eba65", "stripe": "#131313" },
+  "quote": { "glyph": "▎", "color": "#af87ff" },
+  "code": { "line": "#37311a", "label": "#8f7f45", "background": "#131313" },
+  "prompt": {
+    "chevron": { "glyph": "❯", "color": "#ffc107" },
+    "row": [
+      { "glyph": "❦", "color": "#3f6a49" },
+      { "glyph": "✿", "color": "#7a4d63" }
+    ],
+    "spaceAbove": 2,
+    "spaceInside": 1,
+    "spaceBelow": 2
+  },
+  "turn": { "glyph": "✿", "color": "#ffc107" },
+  "tools": {
+    "summary": { "glyph": "❀", "color": "#af87ff" },
+    "done": { "glyph": "●", "color": "#d77757" },
+    "running": { "glyph": "◌", "color": "#ffc107" },
+    "failed": { "glyph": "✕", "color": "#ff6b80" },
+    "name": "#ffffff"
+  }
+}
+```
+
+## Example
+
+A theme that only makes headings brighter and bullets a dot:
+
+```
+/reply-highlight theme {"heading":"#ff9d5c","bullet":{"glyph":"•"}}
+```
+
+## Limits
+
+- Only the terminal is styled.
+- The spinner's symbol cannot be changed by a mod.
+- Lines and tables that contain a link are left to the terminal, so the links stay clickable.
+- A table cell that wraps onto a second row leaves a gap in the side lines under its first row.

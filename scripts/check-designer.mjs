@@ -7,7 +7,9 @@
 // 1. Every HTML tag that is opened is closed, in order.
 // 2. The page's script parses.
 // 3. The designer's built-in look is the mod's DEFAULT_THEME in hooks/theme.ts.
-// 4. Where a Chromium is found (CHROME, or Playwright's download), the page is
+// 4. The favicon and the llms files are there, and the built-in theme in
+//    llms-full.txt is the mod's too.
+// 5. Where a Chromium is found (CHROME, or Playwright's download), the page is
 //    opened headless: no script errors, the whole-session preview and the
 //    command sit in the side column, every step draws its preview, and every
 //    setting outlines something when pointed at.
@@ -73,7 +75,21 @@ if (mod && designer && !isDeepStrictEqual(JSON.parse(JSON.stringify(mod)), JSON.
   problems.push("designer/index.html: DEFAULT_THEME differs from the mod's in hooks/theme.ts")
 }
 
-// ── 4. In a browser ──────────────────────────────────────────────────────
+// ── 4. The files beside the page ─────────────────────────────────────────
+for (const file of ['favicon.svg', 'llms.txt', 'llms-full.txt']) {
+  if (!existsSync(join(root, 'designer', file))) problems.push(`designer/${file} is missing`)
+}
+if (existsSync(join(root, 'designer/llms-full.txt'))) {
+  const block = /```json\n([\s\S]*?)\n```/.exec(readFileSync(join(root, 'designer/llms-full.txt'), 'utf8'))
+  let described
+  try { described = block && JSON.parse(block[1]) } catch (e) { problems.push(`designer/llms-full.txt: the built-in theme is not valid JSON: ${e.message}`) }
+  if (!block) problems.push('designer/llms-full.txt: no built-in theme in a ```json block')
+  else if (described && mod && !isDeepStrictEqual(described, JSON.parse(JSON.stringify(mod)))) {
+    problems.push("designer/llms-full.txt: the built-in theme differs from the mod's in hooks/theme.ts")
+  }
+}
+
+// ── 5. In a browser ──────────────────────────────────────────────────────
 function findChrome() {
   if (process.env.CHROME) return process.env.CHROME
   const base = join(homedir(), '.cache/ms-playwright')

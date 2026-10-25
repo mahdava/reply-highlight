@@ -1,0 +1,16 @@
+# Reply Highlight Themes
+
+> A theme designer for Reply Highlight, a mod for Claude Code that colours Claude's replies and the person's own prompts in the terminal. The page previews each part of a session (prompts, tool rows, headings, lists, coloured words, tables, quotes, code blocks, the end-of-turn line), lets a person pick its colours and symbols, and gives one `/reply-highlight theme {...}` command to paste into Claude Code. It runs entirely in the browser: nothing is sent anywhere, and nothing is saved except the person's last choices, in their own browser.
+
+Reply Highlight changes only how replies are drawn on screen. What Claude wrote, what is stored in the session and what the model reads stay as they were, so it costs no tokens. It needs Claude Code 2.1.302 or later and is installed as a plugin.
+
+## The page
+
+- [Theme designer](/): one step per part of a session, each with its own preview and settings; the whole session is previewed on the side, with the command to copy under it
+- [Full description](/llms-full.txt): every theme value with its built-in setting, the commands, the rules a theme must follow, and how the page is used step by step
+
+## Commands in Claude Code
+
+- `/reply-highlight theme current`: prints the theme in use, to load into the designer with "Load your theme"
+- `/reply-highlight theme {...}`: saves a theme and redraws the replies on screen with it
+- `/reply-highlight reset`: goes back to the built-in look
