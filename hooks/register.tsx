@@ -240,7 +240,7 @@ export const register: Register = on => {
     return (
       <Box flexDirection="column" marginTop={1}>
         {flowers}
-        <Box flexDirection="row">
+        <Box flexDirection="row" marginY={1}>
           <Box flexShrink={0}>
             <Text color={BULLET_COLOR}>{PROMPT_CHEVRON + ' '}</Text>
           </Box>
